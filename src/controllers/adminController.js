@@ -13,11 +13,11 @@ module.exports.loginAdmin = async (req, res) => {
         if (loginAdmin) {
             const passwordMatch = await campareService.comparePasswords(password, loginAdmin.password);
             if (passwordMatch) {
-                const adminToken = await jwtServices.createJwt(loginAdmin);
+                // const adminToken = await jwtServices.createJwt(loginAdmin);, accessToken: adminToken 
 
                 response.success = true;
                 response.message = "Admin Login Successfully";
-                response.data = { loginAdmin, accessToken: adminToken };
+                response.data = { loginAdmin};
                 return res.status(201).send(response);
             } else {
                 response.success = false;
