@@ -1,0 +1,23 @@
+//controllerFiles
+const userCtr = require('../controllers/userController')
+
+//validateModelFiles
+const userModel = require('../validateModels/userModel')
+
+const {checkUserAuth} = require("../middleware/auth")
+
+const socketService = require('../services/socketService')
+
+module.exports=(app,validator)=>{
+    app.post("/api/user/signup", validator.body(userModel.userValidationSchema), userCtr.addUser);
+    app.post("/api/user/Login", validator.body(userModel.loginUsers), userCtr.loginUser);
+    app.put("/api/user/update/:id", checkUserAuth, userCtr.updateUser);
+    app.get("/api/user/getDetailsById/:id", userCtr.getDetailsById);
+    app.delete("/api/user/delete/:_id", checkUserAuth, userCtr.userDelete);
+  
+    // chat route
+  
+    app.get("/api/user/getChat" , socketService.getChats );
+    app.get("/api/user/chatted" , socketService.getChattedUsers );
+
+   }
