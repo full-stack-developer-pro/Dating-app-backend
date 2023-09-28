@@ -1,11 +1,10 @@
 const express=require("express");
-require('dotenv').config(({ path: __dirname + ".env" }));
+require('dotenv').config();
 var app = express();
 var bodyParser = require('body-parser');
 const validator = require('express-joi-validation').createValidator({passError:true})
 const http = require('http');
 const server = http.createServer(app);
-const path = require("path");
 
 
 

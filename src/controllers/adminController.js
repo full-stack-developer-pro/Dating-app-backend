@@ -3,7 +3,7 @@ const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
 const campareService = require('../services/camprePassword');
-   
+
 
 module.exports.loginAdmin = async (req, res) => {
     try {
