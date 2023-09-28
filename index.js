@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 
 
-const port = process.env.PORT 
+const port = process.env.PORT || 3000
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
