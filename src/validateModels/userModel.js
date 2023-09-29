@@ -8,6 +8,7 @@ module.exports.userValidationSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     gender: Joi.string().required(),
+    age: Joi.number().required(),
     birthdate: Joi.date().required(),
     description: Joi.string(),
     country: Joi.string().required(),
