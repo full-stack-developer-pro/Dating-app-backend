@@ -27,6 +27,7 @@ require('./src/db/dbConnection').connectdb();
 require('./src/routes/userRoute')(app,validator)
 require('./src/routes/adminRoute')(app,validator)
 require('./src/routes/friendRoute')(app)
+require('./src/routes/listRoute')(app,validator)
 
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.message){
