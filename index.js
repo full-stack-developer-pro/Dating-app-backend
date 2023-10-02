@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 const validator = require('express-joi-validation').createValidator({passError:true})
 const http = require('http');
 const server = http.createServer(app);
+const cors = require('cors');
 
 
 
@@ -13,6 +14,15 @@ const port = 3000
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
+
+
+
+// Configure CORS options
+const corsOptions = {
+    origin: 'https://dating-app-mu.vercel.app/',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+};
 
 
 // Import the socket service and initialize Socket.io

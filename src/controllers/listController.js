@@ -5,8 +5,6 @@ module.exports.addList = async (req, res) => {
     try {
         let { gender, country } = req.query;
         const filter = {};
-
-        // Convert gender to lowercase for case-insensitive comparison
         gender = gender ? gender.toLowerCase() : '';
 
         if (gender === 'female' || gender === 'male' || gender === 'all') {
@@ -23,7 +21,7 @@ module.exports.addList = async (req, res) => {
         }
 
         if (country) {
-            filter.country = country; // Add filtering by country if provided
+            filter.country = country; 
         }
 
         const people = await userModel.find(filter);

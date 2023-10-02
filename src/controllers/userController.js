@@ -7,6 +7,7 @@ const jwtServices = require("../services/jwtService");
 const campareService = require("../services/camprePassword");
 const { v4: uuidv4 } = require("uuid");
 const mongoose = require("mongoose");
+const online = require('online');
 
 module.exports.addUser = async (req, res) => {
   try {
@@ -79,6 +80,7 @@ module.exports.addUser = async (req, res) => {
         is_flagged,
       });
       addUser.last_login = new Date();
+      addUser.online = true;
       await addUser.save();
 
       response.success = true;
