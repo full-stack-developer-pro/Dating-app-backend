@@ -23,6 +23,7 @@ const corsOptions = {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 };
+app.use(cors(corsOptions));
 
 
 // Import the socket service and initialize Socket.io
