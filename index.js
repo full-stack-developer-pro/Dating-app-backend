@@ -6,26 +6,11 @@ const validator = require('express-joi-validation').createValidator({passError:t
 const http = require('http');
 const server = http.createServer(app);
 const cors = require('cors');
-
-
-
 const port = 3000
-
-
-
-
-
-
-
-
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
-
-
-
-
 
 
 // Configure CORS optionsj
@@ -35,8 +20,6 @@ const corsOptions = {
     credentials: true,
 };
 app.use(cors(corsOptions));
-
-
 
 // Import the socket service and initialize Socket.io
 const initializeSocketServer = require('./src/services/socketService');
