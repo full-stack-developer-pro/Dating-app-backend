@@ -19,6 +19,7 @@ app.use(express.json());
 
 
 
+
 // Configure CORS optionsj
 const corsOptions = {
     origin: ['http://localhost:3000/', 'https://dating-app-mu.vercel.app/'],   
