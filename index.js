@@ -27,6 +27,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 
+
 // Import the socket service and initialize Socket.io
 const initializeSocketServer = require('./src/services/socketService');
 initializeSocketServer(server);
