@@ -1,7 +1,6 @@
 {
   "name": "dating-project",
   "version": "1.0.0",
-  "proxy":"https://localhost:3000",
   "description": "",
   "main": "index.js",
   "scripts": {
