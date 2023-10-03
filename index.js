@@ -11,18 +11,31 @@ const cors = require('cors');
 
 const port = 3000
 
+
+
+
+
+
+
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 
 
 
-// Configure CORS options
+
+
+
+// Configure CORS optionsj
 const corsOptions = {
+    origin: ['http://localhost:3000/', 'https://dating-app-mu.vercel.app/'],   
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 };
 app.use(cors(corsOptions));
+
 
 
 // Import the socket service and initialize Socket.io
