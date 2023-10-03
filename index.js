@@ -19,7 +19,6 @@ app.use(express.json());
 
 // Configure CORS options
 const corsOptions = {
-    origin: 'https://dating-app-mu.vercel.app/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 };
