@@ -1,5 +1,5 @@
-const express=require("express");
 require('dotenv').config();
+const express=require("express");
 var app = express();
 var bodyParser = require('body-parser');
 const validator = require('express-joi-validation').createValidator({passError:true})

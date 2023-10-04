@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-// const secret= "mohan@001"
+require('dotenv').config();
+
 
 module.exports.createJwt = async (user) => {
     try {
