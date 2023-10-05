@@ -7,7 +7,7 @@ const http = require('http');
 const server = http.createServer(app);
 const cors = require('cors');
 
-const port = 3000
+const port = process.env.PORT
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -32,6 +32,8 @@ require('./src/routes/userRoute')(app,validator)
 require('./src/routes/adminRoute')(app,validator)
 require('./src/routes/friendRoute')(app)
 require('./src/routes/listRoute')(app,validator)
+require('./src/routes/paymentRoute')(app,validator)
+
 
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.message){
