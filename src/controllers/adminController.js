@@ -1,6 +1,9 @@
 const adminModel = require('../models/adminModel');
 const aboutModel = require('../models/aboutModel')
 const contactModel = require('../models/contactModel')
+const socialModel= require('../models/socialLinkModel')
+const terms = require('../models/termsAndCondition')
+const policy =require('../models/policyModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -381,14 +384,14 @@ module.exports.getContact = async (req, res) => {
 
 module.exports.addSocialLink = async (req, res) => {
     try {
-        const { socialLinks } = req.body;
-        if (!socialLinks) {
-            response.success = false,
-                response.message = "'SocialLinks Not Found",
-                response.data = null,
-                res.status(404).json(response)
-        }
-        const newSocialLink = new adminModel({ socialLinks });
+        const { facebook,linkedin,twitter, instagram,snapchat } = req.body;
+        const newSocialLink = new socialModel({ 
+            facebook,
+            linkedin,
+            twitter,
+            instagram,
+            snapchat
+         });
         await newSocialLink.save();
         response.success = true;
         response.message = 'Social links added successfully';
@@ -405,7 +408,7 @@ module.exports.addSocialLink = async (req, res) => {
 // getOneSocialLinks.....
 module.exports.getSocialLink = async (req, res) => {
     try {
-        const socialLink = await adminModel.find();
+        const socialLink = await socialModel.find();
         if (!socialLink) {
             response.success = false;
             response.message = 'Social link not found';
@@ -429,7 +432,7 @@ module.exports.getSocialLink = async (req, res) => {
 module.exports.addPolicy = async (req, res) => {
     try {
         const { heading, description } = req.body;
-        const privacyPolicyAdd = await adminModel({
+        const privacyPolicyAdd = await policy({
             heading: heading,
             description: description
         });
@@ -450,17 +453,18 @@ module.exports.addPolicy = async (req, res) => {
 
 module.exports.getPolicy = async (req, res) => {
     try {
-        const privacyPolicy = await adminModel.find();
-        if (!privacyPolicy) {
+        const privacyPolicy = await policy.find();
+        if (!privacyPolicy.length>0) {
             response.success = false,
                 response.message = "'Privacy Policy not found",
                 response.data = null,
                 res.status(404).json(response)
-        }
+        }else{
         response.success = true;
         response.message = 'Policy And Privacy Get successfully';
         response.data = privacyPolicy;
         return res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -473,7 +477,7 @@ module.exports.getPolicy = async (req, res) => {
 module.exports.addTermsAndCondition = async (req, res) => {
     try {
         const { heading, description } = req.body;
-        const privacyPolicyAdd = await adminModel({
+        const privacyPolicyAdd = await terms({
             heading: heading,
             description: description
         });
@@ -493,17 +497,18 @@ module.exports.addTermsAndCondition = async (req, res) => {
 // getTermsAnd Condition....
 module.exports.getTermsAndCondition = async (req, res) => {
     try {
-        const user = await adminModel.find();
-        if (!user) {
+        const user = await terms.find();
+        if (!user.length>0) {
             response.success = false,
                 response.message = "'Terms And Conditon not found",
                 response.data = null,
                 res.status(404).json(response)
-        }
+        }else{
         response.success = true;
         response.message = 'Terms And Conditon Get successfully';
         response.data = user;
         return res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
