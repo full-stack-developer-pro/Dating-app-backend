@@ -304,7 +304,8 @@ module.exports.addAbout = async (req, res) => {
 
 module.exports.getAbout = async (req, res) => {
     try {
-        const getData = await adminModel.find()
+        const {_id}=req.params
+        const getData = await adminModel.findById(_id)
         if (!getData) {
             response.success = false,
                 response.message = "'User Not Found",
@@ -323,35 +324,49 @@ module.exports.getAbout = async (req, res) => {
 }
 
 
-// contactus
+// contactAs
 module.exports.addContact = async (req, res) => {
     try {
         const { lat, long, address, phoneNumber, email } = req.body;
-        const contact = new adminModel({
-            lat: lat,
-            long: long,
-            address,
-            phoneNumber: phoneNumber,
-            email: email
-        });
-        const savedContact = await contact.save();
+        const _id = req.params.id;
+        let contact;
+        if (_id) {
+            contact = await adminModel.findByIdAndUpdate(_id, {
+                lat: lat,
+                long: long,
+                address: address,
+                phoneNumber: phoneNumber,
+                email: email
+            });
+        } else {
+            contact = new adminModel({
+                lat: lat,
+                long: long,
+                address: address,
+                phoneNumber: phoneNumber,
+                email: email
+            });
+            await contact.save();
+        }
         response.success = true;
-        response.message = 'Contact As added successfully';
-        response.data = savedContact;
+        response.message = contactId ? 'Contact updated successfully' : 'Contact added successfully';
+        response.data = contact;
         res.status(200).json(response);
     } catch (error) {
         console.error(error);
-        response.message = 'Internal Server Error';
+         response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
-}
+};
+
 
 
 // getContactAs...
 
 module.exports.getContact = async (req, res) => {
     try {
-        const getData = await adminModel.find()
+        const {_id}=req.params
+        const getData = await adminModel.findById(_id)
         if (!getData) {
             response.success = false,
                 response.message = "'User Not Found",
