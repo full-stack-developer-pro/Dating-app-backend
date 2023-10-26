@@ -1,9 +1,11 @@
 const adminModel = require('../models/adminModel');
+const aboutModel = require('../models/aboutModel')
+const contactModel = require('../models/contactModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
 const campareService = require('../services/camprePassword');
-   
+
 
 module.exports.loginAdmin = async (req, res) => {
     try {
@@ -270,7 +272,7 @@ module.exports.addAbout = async (req, res) => {
     try {
         const { Heading, Description, BottomHeading, BottomDescription } = req.body;
 
-        const existingAbout = await adminModel.findOne({
+        const existingAbout = await aboutModel.findOne({
             Heading: Heading,
             Description: Description,
             BottomHeading: BottomHeading,
@@ -281,7 +283,7 @@ module.exports.addAbout = async (req, res) => {
             response.message = 'About Us with the same data already exists';
             return res.status(400).json(response);
         }
-        const about = await adminModel({
+        const about = await aboutModel({
             Heading: Heading,
             Description: Description,
             BottomHeading: BottomHeading,
@@ -304,18 +306,18 @@ module.exports.addAbout = async (req, res) => {
 
 module.exports.getAbout = async (req, res) => {
     try {
-        const {_id}=req.params
-        const getData = await adminModel.findById(_id)
-        if (!getData) {
+        const getData = await aboutModel.find()
+        if (!getData.length > 0) {
             response.success = false,
                 response.message = "'User Not Found",
                 response.data = null,
                 res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'AboutAs Get successfully';
+            response.data = getData;
+            res.status(200).json(response);
         }
-        response.success = true;
-        response.message = 'AboutAs Get successfully';
-        response.data = getData;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -328,34 +330,24 @@ module.exports.getAbout = async (req, res) => {
 module.exports.addContact = async (req, res) => {
     try {
         const { lat, long, address, phoneNumber, email } = req.body;
-        const _id = req.params.id;
         let contact;
-        if (_id) {
-            contact = await adminModel.findByIdAndUpdate(_id, {
-                lat: lat,
-                long: long,
-                address: address,
-                phoneNumber: phoneNumber,
-                email: email
-            });
-        } else {
-            contact = new adminModel({
-                lat: lat,
-                long: long,
-                address: address,
-                phoneNumber: phoneNumber,
-                email: email
-            });
-            await contact.save();
-        }
+
+        contact = new contactModel({
+            lat: lat,
+            long: long,
+            address: address,
+            phoneNumber: phoneNumber,
+            email: email
+        });
+        await contact.save();
         response.success = true;
-        response.message = _id ? 'Contact updated successfully' : 'Contact added successfully';
+        response.message =  'Contact added successfully';
         response.data = contact;
         res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.success = false;
-         response.message = 'Internal Server Error';
+        response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
 };
@@ -366,18 +358,18 @@ module.exports.addContact = async (req, res) => {
 
 module.exports.getContact = async (req, res) => {
     try {
-        const {_id}=req.params
-        const getData = await adminModel.findById(_id)
-        if (!getData) {
+        const getData = await contactModel.find()
+        if (!getData.length>0) {
             response.success = false,
                 response.message = "'User Not Found",
                 response.data = null,
                 res.status(404).json(response)
-        }
+        }else{
         response.success = true;
         response.message = 'contactAs Get successfully';
         response.data = getData;
         res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -523,25 +515,25 @@ module.exports.getTermsAndCondition = async (req, res) => {
 
 // blogs....
 exports.uploadImage = async (req, res) => {
-  try {
-    const {  heading, description } = req.body;
-    const image = req.file.path;
+    try {
+        const { heading, description } = req.body;
+        const image = req.file.path;
 
-    if (!heading || !image || !description) {
-      return res.status(400).json({ code: 400, message: 'Bad Request' });
+        if (!heading || !image || !description) {
+            return res.status(400).json({ code: 400, message: 'Bad Request' });
+        }
+
+        const newFile = new adminModel({ heading, image, description });
+        const response = await newFile.save();
+
+        if (response) {
+            return res.status(200).json({ code: 200, message: 'File and data uploaded successfully' });
+        } else {
+            return res.status(500).json({ code: 500, message: 'Failed to save file and data' });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ code: 500, message: 'Server Error' });
     }
-
-    const newFile = new adminModel({ heading, image, description });
-    const response = await newFile.save();
-
-    if (response) {
-      return res.status(200).json({ code: 200, message: 'File and data uploaded successfully' });
-    } else {
-      return res.status(500).json({ code: 500, message: 'Failed to save file and data' });
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ code: 500, message: 'Server Error' });
-  }
 };
 
