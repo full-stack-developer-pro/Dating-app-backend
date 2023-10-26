@@ -39,8 +39,8 @@ module.exports.restPassword = Joi.object({
 module.exports.about = Joi.object({
   Heading: Joi.string().required(),
   Description: Joi.string().required(),
-  bottomHeading: Joi.string().required(),
-  bottomDescription: Joi.string().required(),
+  BottomHeading: Joi.string().required(),
+  BottomDescription: Joi.string().required(),
 })
 
 

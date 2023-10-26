@@ -268,25 +268,26 @@ exports.resetPassword = async (req, res) => {
 // about as......
 module.exports.addAbout = async (req, res) => {
     try {
-        const { Heading, Description, bottomHeading, bottomDescription } = req.body;
+        const { Heading, Description, BottomHeading, BottomDescription } = req.body;
 
         const existingAbout = await adminModel.findOne({
             Heading: Heading,
             Description: Description,
-            bottomHeading: bottomHeading,
-            bottomDescription: bottomDescription,
+            BottomHeading: BottomHeading,
+            BottomDescription: BottomDescription,
         });
 
         if (existingAbout) {
             response.message = 'About Us with the same data already exists';
             return res.status(400).json(response);
         }
-        const about = new adminModel({
+        const about = await adminModel({
             Heading: Heading,
             Description: Description,
-            bottomHeading: bottomHeading,
-            bottomDescription: bottomDescription,
+            BottomHeading: BottomHeading,
+            BottomDescription: BottomDescription,
         });
+        console.log(about)
         await about.save();
         response.success = true;
         response.message = 'AboutAs added successfully';

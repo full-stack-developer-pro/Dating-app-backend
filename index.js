@@ -37,7 +37,7 @@ require('./src/routes/paymentRoute')(app,validator)
 
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.message){
-        res.status(400).send({sucees:false,message:err.error.message})
+        res.status(400).send({success:false,message:err.error.message})
     }else{
         next()
     }
