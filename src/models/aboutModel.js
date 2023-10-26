@@ -7,7 +7,7 @@ const adminSchema = new mongoose.Schema({
         type: String,
 
     },
-    Hescription: {
+    Description: {
         type: String,
 
     },
