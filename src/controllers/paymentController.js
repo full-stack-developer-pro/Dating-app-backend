@@ -1,5 +1,6 @@
 
 const { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } = process.env
+console.log(STRIPE_SECRET_KEY);
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
@@ -42,7 +43,7 @@ const addNewCard = async(req,res)=>{
                 cvc: card_CVC
             }
         });
-
+        console.log(card_token);
         const card = await stripe.customers.createSource(customer_id, {
             source: `${card_token.id}`
         });
