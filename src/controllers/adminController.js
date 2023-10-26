@@ -349,11 +349,12 @@ module.exports.addContact = async (req, res) => {
             await contact.save();
         }
         response.success = true;
-        response.message = contactId ? 'Contact updated successfully' : 'Contact added successfully';
+        response.message = _id ? 'Contact updated successfully' : 'Contact added successfully';
         response.data = contact;
         res.status(200).json(response);
     } catch (error) {
         console.error(error);
+        response.success = false;
          response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
@@ -374,7 +375,7 @@ module.exports.getContact = async (req, res) => {
                 res.status(404).json(response)
         }
         response.success = true;
-        response.message = 'AboutAs Get successfully';
+        response.message = 'contactAs Get successfully';
         response.data = getData;
         res.status(200).json(response);
     } catch (error) {
