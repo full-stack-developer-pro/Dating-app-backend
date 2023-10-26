@@ -34,6 +34,7 @@ const adminSchema = new mongoose.Schema({
     BottomDescription: {
         type: String,
        
+        
     },
     lat: {
         type: String,
