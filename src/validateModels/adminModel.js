@@ -69,3 +69,10 @@ module.exports.policy = Joi.object({
   description: Joi.string().required(),
  
 })
+
+module.exports.terms = Joi.object({
+  _id: Joi.string().allow('', null), 
+  heading: Joi.string().required(),
+  description: Joi.string().required(),
+ 
+})
