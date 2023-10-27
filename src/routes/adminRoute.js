@@ -42,6 +42,7 @@ module.exports=(app,validator)=>{
 
     app.post('/api/admin/blog',upload.array('images',5),adminCtr.addBlog)
     app.get("/api/admin/getBlog",adminCtr.getblog)
+    app.get("/api/admin/getOneBlog/:_id",adminCtr.getOneblog)
 
 
   }
