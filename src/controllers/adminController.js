@@ -605,7 +605,7 @@ module.exports.getTermsAndCondition = async (req, res) => {
         const images = req.files;
         const imagePaths = images.map((image) => ({
             path: image.path,
-            url: `https://localhost:3000/uploads/${encodeURIComponent(image.filename)}`,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
         }));
         if (!existingTerms) {
         const newBlog = new blog({
