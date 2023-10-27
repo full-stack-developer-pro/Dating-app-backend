@@ -9,6 +9,9 @@ const cors = require('cors');
 
 const port = process.env.PORT
 
+// multer file
+app.use('/uploads', express.static('uploads'));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
