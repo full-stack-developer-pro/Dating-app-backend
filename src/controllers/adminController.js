@@ -1,9 +1,9 @@
 const adminModel = require('../models/adminModel');
 const aboutModel = require('../models/aboutModel')
 const contactModel = require('../models/contactModel')
-const socialModel= require('../models/socialLinkModel')
+const socialModel = require('../models/socialLinkModel')
 const terms = require('../models/termsAndCondition')
-const policy =require('../models/policyModel')
+const policy = require('../models/policyModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -271,36 +271,55 @@ exports.resetPassword = async (req, res) => {
 
 
 // about as......
+
 module.exports.addAbout = async (req, res) => {
     try {
-        const { Heading, Description, BottomHeading, BottomDescription } = req.body;
+        const { Heading, Description, BottomHeading, BottomDescription ,_id} = req.body;
+        const existingAbout = await aboutModel.findOne({ _id:_id });
 
-        const existingAbout = await aboutModel.findOne({
-            Heading: Heading,
-            Description: Description,
-            BottomHeading: BottomHeading,
-            BottomDescription: BottomDescription,
-        });
+        if (!existingAbout) {
+            // Create a new about document
+            const about = new aboutModel({
+                _id:_id,
+                Heading: Heading,
+                Description: Description,
+                BottomHeading: BottomHeading,
+                BottomDescription: BottomDescription,
+            });
+            
+            await about.save();
 
-        if (existingAbout) {
-            response.message = 'About Us with the same data already exists';
-            return res.status(400).json(response);
+            const response = {
+                success: true,
+                message: 'About added successfully',
+                data: about,
+            };
+            
+            res.status(200).json(response);
+        } else {
+            // Update the existing about document
+            const aboutUpdate = await aboutModel.findByIdAndUpdate({_id:_id},
+                {
+                    Heading: Heading,
+                    Description: Description,
+                    BottomHeading: BottomHeading,
+                    BottomDescription: BottomDescription,
+                })
+
+            const response = {
+                success: true,
+                message: 'About updated successfully',
+                data: aboutUpdate,
+            };
+            
+            res.status(200).json(response);
         }
-        const about = await aboutModel({
-            Heading: Heading,
-            Description: Description,
-            BottomHeading: BottomHeading,
-            BottomDescription: BottomDescription,
-        });
-        console.log(about)
-        await about.save();
-        response.success = true;
-        response.message = 'AboutAs added successfully';
-        response.data = about;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
-        response.message = 'Internal Server Error';
+        const response = {
+            success: false,
+            message: 'Internal Server Error',
+        };
         res.status(500).json(response);
     }
 };
@@ -333,9 +352,7 @@ module.exports.getAbout = async (req, res) => {
 module.exports.addContact = async (req, res) => {
     try {
         const { lat, long, address, phoneNumber, email } = req.body;
-        let contact;
-
-        contact = new contactModel({
+        let contact = new contactModel({
             lat: lat,
             long: long,
             address: address,
@@ -344,7 +361,7 @@ module.exports.addContact = async (req, res) => {
         });
         await contact.save();
         response.success = true;
-        response.message =  'Contact added successfully';
+        response.message = 'Contact added successfully';
         response.data = contact;
         res.status(200).json(response);
     } catch (error) {
@@ -362,16 +379,16 @@ module.exports.addContact = async (req, res) => {
 module.exports.getContact = async (req, res) => {
     try {
         const getData = await contactModel.find()
-        if (!getData.length>0) {
+        if (!getData.length > 0) {
             response.success = false,
                 response.message = "'User Not Found",
                 response.data = null,
                 res.status(404).json(response)
-        }else{
-        response.success = true;
-        response.message = 'contactAs Get successfully';
-        response.data = getData;
-        res.status(200).json(response);
+        } else {
+            response.success = true;
+            response.message = 'contactAs Get successfully';
+            response.data = getData;
+            res.status(200).json(response);
         }
     } catch (error) {
         console.error(error);
@@ -384,14 +401,14 @@ module.exports.getContact = async (req, res) => {
 
 module.exports.addSocialLink = async (req, res) => {
     try {
-        const { facebook,linkedin,twitter, instagram,snapchat } = req.body;
-        const newSocialLink = new socialModel({ 
+        const { facebook, linkedin, twitter, instagram, snapchat } = req.body;
+        const newSocialLink = new socialModel({
             facebook,
             linkedin,
             twitter,
             instagram,
             snapchat
-         });
+        });
         await newSocialLink.save();
         response.success = true;
         response.message = 'Social links added successfully';
@@ -454,16 +471,16 @@ module.exports.addPolicy = async (req, res) => {
 module.exports.getPolicy = async (req, res) => {
     try {
         const privacyPolicy = await policy.find();
-        if (!privacyPolicy.length>0) {
+        if (!privacyPolicy.length > 0) {
             response.success = false,
                 response.message = "'Privacy Policy not found",
                 response.data = null,
                 res.status(404).json(response)
-        }else{
-        response.success = true;
-        response.message = 'Policy And Privacy Get successfully';
-        response.data = privacyPolicy;
-        return res.status(200).json(response);
+        } else {
+            response.success = true;
+            response.message = 'Policy And Privacy Get successfully';
+            response.data = privacyPolicy;
+            return res.status(200).json(response);
         }
     } catch (error) {
         console.error(error);
@@ -498,16 +515,16 @@ module.exports.addTermsAndCondition = async (req, res) => {
 module.exports.getTermsAndCondition = async (req, res) => {
     try {
         const user = await terms.find();
-        if (!user.length>0) {
+        if (!user.length > 0) {
             response.success = false,
                 response.message = "'Terms And Conditon not found",
                 response.data = null,
                 res.status(404).json(response)
-        }else{
-        response.success = true;
-        response.message = 'Terms And Conditon Get successfully';
-        response.data = user;
-        return res.status(200).json(response);
+        } else {
+            response.success = true;
+            response.message = 'Terms And Conditon Get successfully';
+            response.data = user;
+            return res.status(200).json(response);
         }
     } catch (error) {
         console.error(error);

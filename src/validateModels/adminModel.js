@@ -1,4 +1,5 @@
 const Joi = require('joi')
+const { empty } = require('uuidv4')
 
 module.exports.loginAdmin = Joi.object({
   email: Joi.string().email().required(),
@@ -35,13 +36,13 @@ module.exports.restPassword = Joi.object({
   newPassword: Joi.string().required(),
 })
 
-
 module.exports.about = Joi.object({
+  _id: Joi.string().allow('', null), 
   Heading: Joi.string().required(),
   Description: Joi.string().required(),
   BottomHeading: Joi.string().required(),
   BottomDescription: Joi.string().required(),
-})
+});
 
 
 module.exports.contact = Joi.object({
