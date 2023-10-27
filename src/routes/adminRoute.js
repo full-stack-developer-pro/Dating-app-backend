@@ -41,6 +41,7 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getTerms&Condition",adminCtr.getTermsAndCondition)
 
     app.post('/api/admin/blog',upload.array('images',5),adminCtr.addBlog)
+    app.get("/api/admin/getBlog",adminCtr.getblog)
 
 
   }
