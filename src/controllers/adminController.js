@@ -643,3 +643,26 @@ module.exports.getTermsAndCondition = async (req, res) => {
         res.status(500).json(response);
     }
 };
+
+
+// getBlog.....
+module.exports.getblog = async (req, res) => {
+    try {
+        const blogs = await blog.find();
+        if (!blogs) {
+            response.success = false,
+                response.message = "'blog not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Blog Get successfully';
+            response.data = blogs;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
