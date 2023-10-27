@@ -274,44 +274,37 @@ exports.resetPassword = async (req, res) => {
 
 module.exports.addAbout = async (req, res) => {
     try {
-        const { Heading, Description, BottomHeading, BottomDescription ,_id} = req.body;
-        const existingAbout = await aboutModel.findOne({ _id:_id });
-
+        const { Heading, Description, BottomHeading, BottomDescription, _id } = req.body;
+        const existingAbout = await aboutModel.findOne({ _id: _id });
         if (!existingAbout) {
-            // Create a new about document
             const about = new aboutModel({
-                _id:_id,
+                _id: _id,
                 Heading: Heading,
                 Description: Description,
                 BottomHeading: BottomHeading,
                 BottomDescription: BottomDescription,
             });
-            
             await about.save();
-
             const response = {
                 success: true,
                 message: 'About added successfully',
                 data: about,
             };
-            
             res.status(200).json(response);
         } else {
             // Update the existing about document
-            const aboutUpdate = await aboutModel.findByIdAndUpdate({_id:_id},
+            const aboutUpdate = await aboutModel.findByIdAndUpdate({ _id: _id },
                 {
                     Heading: Heading,
                     Description: Description,
                     BottomHeading: BottomHeading,
                     BottomDescription: BottomDescription,
                 })
-
             const response = {
                 success: true,
                 message: 'About updated successfully',
                 data: aboutUpdate,
             };
-            
             res.status(200).json(response);
         }
     } catch (error) {
@@ -351,19 +344,38 @@ module.exports.getAbout = async (req, res) => {
 // contactAs
 module.exports.addContact = async (req, res) => {
     try {
-        const { lat, long, address, phoneNumber, email } = req.body;
-        let contact = new contactModel({
-            lat: lat,
-            long: long,
-            address: address,
-            phoneNumber: phoneNumber,
-            email: email
-        });
-        await contact.save();
-        response.success = true;
-        response.message = 'Contact added successfully';
-        response.data = contact;
-        res.status(200).json(response);
+        const { lat, long, address, phoneNumber, email, _id } = req.body;
+        const existingContact = await contactModel.findOne({ _id: _id });
+        if (!existingContact) {
+            let contact = new contactModel({
+                _id: _id,
+                lat: lat,
+                long: long,
+                address: address,
+                phoneNumber: phoneNumber,
+                email: email
+            });
+            await contact.save();
+            response.success = true;
+            response.message = 'Contact added successfully';
+            response.data = contact;
+            res.status(200).json(response);
+        } else {
+            const contactUpdate = await contactModel.findByIdAndUpdate({ _id: _id },
+                {
+                    lat: lat,
+                    long: long,
+                    address: address,
+                    phoneNumber: phoneNumber,
+                    email: email
+                })
+            const response = {
+                success: true,
+                message: 'Contact updated successfully',
+                data: contactUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.success = false;
@@ -401,19 +413,38 @@ module.exports.getContact = async (req, res) => {
 
 module.exports.addSocialLink = async (req, res) => {
     try {
-        const { facebook, linkedin, twitter, instagram, snapchat } = req.body;
-        const newSocialLink = new socialModel({
-            facebook,
-            linkedin,
-            twitter,
-            instagram,
-            snapchat
-        });
-        await newSocialLink.save();
-        response.success = true;
-        response.message = 'Social links added successfully';
-        response.data = newSocialLink;
-        res.status(200).json(response);
+        const { facebook, linkedin, twitter, instagram, snapchat, _id } = req.body;
+        const existingContact = await socialModel.findOne({ _id: _id });
+        if (!existingContact) {
+            const newSocialLink = new socialModel({
+                _id,
+                facebook,
+                linkedin,
+                twitter,
+                instagram,
+                snapchat
+            });
+            await newSocialLink.save();
+            response.success = true;
+            response.message = 'Social links added successfully';
+            response.data = newSocialLink;
+            res.status(200).json(response);
+        } else {
+            const socialLinksUpdate = await socialModel.findByIdAndUpdate({ _id: _id },
+                {
+                    facebook: facebook,
+                    linkedin: linkedin,
+                    twitter: twitter,
+                    instagram: instagram,
+                    snapchat: snapchat
+                })
+            const response = {
+                success: true,
+                message: 'socialLinks updated successfully',
+                data: socialLinksUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         console.error(error);
@@ -443,29 +474,43 @@ module.exports.getSocialLink = async (req, res) => {
         res.status(500).json(response);
     }
 };
+
+
 // PrivacyPolicy
-
-
 module.exports.addPolicy = async (req, res) => {
     try {
-        const { heading, description } = req.body;
-        const privacyPolicyAdd = await policy({
-            heading: heading,
-            description: description
-        });
-        await privacyPolicyAdd.save();
-
-        response.success = true;
-        response.message = 'Add Policy&Privacy successfully';
-        response.data = privacyPolicyAdd;
-        return res.status(200).json(response);
+        const { heading, description, _id } = req.body;
+        const existingContact = await policy.findOne({ _id: _id });
+        if (!existingContact) {
+            const privacyPolicyAdd = await policy({
+                _id: _id,
+                heading: heading,
+                description: description
+            });
+            await privacyPolicyAdd.save();
+            response.success = true;
+            response.message = 'Add Policy&Privacy successfully';
+            response.data = privacyPolicyAdd;
+            return res.status(200).json(response);
+        } else {
+            const policyUpdate = await policy.findByIdAndUpdate({ _id: _id },
+                {
+                    heading: heading,
+                    description: description
+                })
+            const response = {
+                success: true,
+                message: 'policy updated successfully',
+                data: policyUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
 }
-
 // getPrivacy&Policy
 
 module.exports.getPolicy = async (req, res) => {
@@ -493,17 +538,32 @@ module.exports.getPolicy = async (req, res) => {
 
 module.exports.addTermsAndCondition = async (req, res) => {
     try {
-        const { heading, description } = req.body;
-        const privacyPolicyAdd = await terms({
-            heading: heading,
-            description: description
-        });
-        await privacyPolicyAdd.save();
-
-        response.success = true;
-        response.message = 'Add Terms&Condition successfully';
-        response.data = privacyPolicyAdd;
-        return res.status(200).json(response);
+        const { heading, description, _id } = req.body;
+        const existingTerms = await terms.findOne({ _id: _id });
+        if (!existingTerms) {
+            const termsAdd = await terms({
+                _id: _id,
+                heading: heading,
+                description: description
+            });
+            await termsAdd.save();
+            response.success = true;
+            response.message = 'Add Terms successfully';
+            response.data = termsAdd;
+            return res.status(200).json(response);
+        } else {
+            const termsUpdate = await terms.findByIdAndUpdate({ _id: _id },
+                {
+                    heading: heading,
+                    description: description
+                })
+            const response = {
+                success: true,
+                message: 'terms updated successfully',
+                data: termsUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';

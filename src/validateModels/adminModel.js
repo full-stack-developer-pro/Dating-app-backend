@@ -46,9 +46,26 @@ module.exports.about = Joi.object({
 
 
 module.exports.contact = Joi.object({
+  _id: Joi.string().allow('', null), 
   lat: Joi.number().required(),
   long: Joi.number().required(),
   address: Joi.string().required(),
   phoneNumber: Joi.string().required(),
   email: Joi.string().email().required(),
+})
+
+module.exports.socialLinks = Joi.object({
+  _id: Joi.string().allow('', null), 
+  facebook: Joi.string().required(),
+  linkedin: Joi.string().required(),
+  twitter: Joi.string().required(),
+  instagram: Joi.string().required(),
+  snapchat: Joi.string().required(),
+})
+
+module.exports.policy = Joi.object({
+  _id: Joi.string().allow('', null), 
+  heading: Joi.string().required(),
+  description: Joi.string().required(),
+ 
 })
