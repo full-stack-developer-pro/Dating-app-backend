@@ -4,6 +4,7 @@ const contactModel = require('../models/contactModel')
 const socialModel = require('../models/socialLinkModel')
 const terms = require('../models/termsAndCondition')
 const policy = require('../models/policyModel')
+const blog = require('../models/blogModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -596,26 +597,49 @@ module.exports.getTermsAndCondition = async (req, res) => {
 
 
 // blogs....
-exports.uploadImage = async (req, res) => {
+
+  module.exports.addBlog = async (req, res) => {
     try {
-        const { heading, description } = req.body;
-        const image = req.file.path;
+        const { heading, description ,_id} = req.body;
+        const existingTerms = await blog.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://localhost:3000/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newBlog = new blog({
+            _id: _id ,
+            heading: heading,
+            description: description,
+            images: imagePaths,
+        });
 
-        if (!heading || !image || !description) {
-            return res.status(400).json({ code: 400, message: 'Bad Request' });
-        }
+        const savedBlog = await newBlog.save();
 
-        const newFile = new adminModel({ heading, image, description });
-        const response = await newFile.save();
+        response.success = true;
+        response.message = 'Blog added successfully';
+        response.data = savedBlog;
 
-        if (response) {
-            return res.status(200).json({ code: 200, message: 'File and data uploaded successfully' });
-        } else {
-            return res.status(500).json({ code: 500, message: 'Failed to save file and data' });
-        }
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ code: 500, message: 'Server Error' });
+        res.status(201).json(response);
+    }else{
+        const blogUpdate = await blog.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                description: description,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'blog updated successfully',
+            data: blogUpdate,
+        };
+        res.status(200).json(response);
+
+    }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
     }
 };
-
