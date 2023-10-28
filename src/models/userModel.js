@@ -88,6 +88,9 @@ const userSchema = new mongoose.Schema({
     role:{
         type:String
     },
+    friends:{
+      type:Object,
+    },
     active: {
         type: Boolean,
         default: true, // Set to true by default
