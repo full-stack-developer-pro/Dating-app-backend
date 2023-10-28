@@ -14,7 +14,7 @@ module.exports.userValidationSchema = Joi.object({
     country: Joi.string().required(),
     city: Joi.string().required(),
     postcode: Joi.string(),
-    timezone: Joi.string(),
+    timezone: Joi.object(),
     height: Joi.number().required(),
     weight: Joi.number().required(),
     eye_color: Joi.string(),
@@ -26,6 +26,7 @@ module.exports.userValidationSchema = Joi.object({
     free_message: Joi.string(),
     is_verified: Joi.boolean(),
     is_flagged: Joi.boolean(),
+    role_type: Joi.number()
 });
 
 

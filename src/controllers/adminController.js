@@ -710,3 +710,24 @@ module.exports.getAllUserByAdmin = async (req, res) => {
     }
 }
 
+module.exports.getOneUserByAdmin = async (req, res) => {
+    try {
+        const {_id}=req.params
+        const users = await user.find({_id:_id});
+        if (!users) {
+            response.success = false,
+                response.message = "'users not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Users Get successfully';
+            response.data = users;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
