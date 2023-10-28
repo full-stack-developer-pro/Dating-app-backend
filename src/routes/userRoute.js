@@ -12,9 +12,9 @@ const socketService = require('../services/socketService')
 module.exports=(app,validator)=>{
     app.post("/api/user/signup", validator.body(userModel.userValidationSchema), userCtr.addUser);
     app.post("/api/user/Login", validator.body(userModel.loginUsers), userCtr.loginUser);
-    app.put("/api/user/update/:id",  userCtr.updateUser);
+    app.put("/api/user/update/:id", userCtr.updateUser);
     app.get("/api/user/getDetailsById/:id", userCtr.getDetailsById);
-    app.delete("/api/user/delete/:_id",  userCtr.userDelete);
+    app.delete("/api/user/delete/:_id", userCtr.userDelete);
   
     // chat route
   
