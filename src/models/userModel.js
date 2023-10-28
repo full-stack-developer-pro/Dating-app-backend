@@ -93,11 +93,11 @@ const userSchema = new mongoose.Schema({
     },
     active: {
         type: Boolean,
-        default: true, // Set to true by default
+        default: true, 
     },
     inactive: {
         type: Boolean,
-        default: false, // Set to false by default
+        default: false, 
     },
 }, 
 {

@@ -34,7 +34,6 @@ function initializeSocketServer(server) {
 
 module.exports = initializeSocketServer;
 
-// API endpoint to list users a person has chatted with
 
 module.exports.getChattedUsers =  async (req, res) => {
   const userId = req.query.userId;
