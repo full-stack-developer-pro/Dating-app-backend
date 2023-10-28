@@ -5,6 +5,7 @@ const socialModel = require('../models/socialLinkModel')
 const terms = require('../models/termsAndCondition')
 const policy = require('../models/policyModel')
 const blog = require('../models/blogModel')
+const user =require('../models/userModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -687,3 +688,25 @@ module.exports.getOneblog = async (req, res) => {
         res.status(500).json(response);
     }
 }
+
+module.exports.getAllUserByAdmin = async (req, res) => {
+    try {
+        const users = await user.find();
+        if (!users) {
+            response.success = false,
+                response.message = "'users not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Users Get successfully';
+            response.data = users;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
