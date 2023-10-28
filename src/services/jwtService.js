@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
-const secret= "mohan@001"
+require('dotenv').config();
+
 
 module.exports.createJwt = async (user) => {
     try {
-        const token = jwt.sign({ data: user },secret , { expiresIn: '5h' });
+        const token = jwt.sign({ data: user },process.env.SECRETKEY, { expiresIn: '5h' });
         return token;
     } catch (error) {
         console.log("Error", error);

@@ -1,9 +1,16 @@
 const adminModel = require('../models/adminModel');
+const aboutModel = require('../models/aboutModel')
+const contactModel = require('../models/contactModel')
+const socialModel = require('../models/socialLinkModel')
+const terms = require('../models/termsAndCondition')
+const policy = require('../models/policyModel')
+const blog = require('../models/blogModel')
+const user =require('../models/userModel')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
 const campareService = require('../services/camprePassword');
-   
+
 
 module.exports.loginAdmin = async (req, res) => {
     try {
@@ -266,35 +273,48 @@ exports.resetPassword = async (req, res) => {
 
 
 // about as......
+
 module.exports.addAbout = async (req, res) => {
     try {
-        const { Heading, Description, bottomHeading, bottomDescription } = req.body;
-
-        const existingAbout = await adminModel.findOne({
-            Heading: Heading,
-            Description: Description,
-            bottomHeading: bottomHeading,
-            bottomDescription: bottomDescription,
-        });
-
-        if (existingAbout) {
-            response.message = 'About Us with the same data already exists';
-            return res.status(400).json(response);
+        const { Heading, Description, BottomHeading, BottomDescription, _id } = req.body;
+        const existingAbout = await aboutModel.findOne({ _id: _id });
+        if (!existingAbout) {
+            const about = new aboutModel({
+                _id: _id,
+                Heading: Heading,
+                Description: Description,
+                BottomHeading: BottomHeading,
+                BottomDescription: BottomDescription,
+            });
+            await about.save();
+            const response = {
+                success: true,
+                message: 'About added successfully',
+                data: about,
+            };
+            res.status(200).json(response);
+        } else {
+            // Update the existing about document
+            const aboutUpdate = await aboutModel.findByIdAndUpdate({ _id: _id },
+                {
+                    Heading: Heading,
+                    Description: Description,
+                    BottomHeading: BottomHeading,
+                    BottomDescription: BottomDescription,
+                })
+            const response = {
+                success: true,
+                message: 'About updated successfully',
+                data: aboutUpdate,
+            };
+            res.status(200).json(response);
         }
-        const about = new adminModel({
-            Heading: Heading,
-            Description: Description,
-            bottomHeading: bottomHeading,
-            bottomDescription: bottomDescription,
-        });
-        await about.save();
-        response.success = true;
-        response.message = 'AboutAs added successfully';
-        response.data = about;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
-        response.message = 'Internal Server Error';
+        const response = {
+            success: false,
+            message: 'Internal Server Error',
+        };
         res.status(500).json(response);
     }
 };
@@ -303,17 +323,18 @@ module.exports.addAbout = async (req, res) => {
 
 module.exports.getAbout = async (req, res) => {
     try {
-        const getData = await adminModel.find()
-        if (!getData) {
+        const getData = await aboutModel.find()
+        if (!getData.length > 0) {
             response.success = false,
                 response.message = "'User Not Found",
                 response.data = null,
                 res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'AboutAs Get successfully';
+            response.data = getData;
+            res.status(200).json(response);
         }
-        response.success = true;
-        response.message = 'AboutAs Get successfully';
-        response.data = getData;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -322,45 +343,67 @@ module.exports.getAbout = async (req, res) => {
 }
 
 
-// contactus
+// contactAs
 module.exports.addContact = async (req, res) => {
     try {
-        const { lat, long, address, phoneNumber, email } = req.body;
-        const contact = new adminModel({
-            lat: lat,
-            long: long,
-            address,
-            phoneNumber: phoneNumber,
-            email: email
-        });
-        const savedContact = await contact.save();
-        response.success = true;
-        response.message = 'Contact As added successfully';
-        response.data = savedContact;
-        res.status(200).json(response);
+        const { lat, long, address, phoneNumber, email, _id } = req.body;
+        const existingContact = await contactModel.findOne({ _id: _id });
+        if (!existingContact) {
+            let contact = new contactModel({
+                _id: _id,
+                lat: lat,
+                long: long,
+                address: address,
+                phoneNumber: phoneNumber,
+                email: email
+            });
+            await contact.save();
+            response.success = true;
+            response.message = 'Contact added successfully';
+            response.data = contact;
+            res.status(200).json(response);
+        } else {
+            const contactUpdate = await contactModel.findByIdAndUpdate({ _id: _id },
+                {
+                    lat: lat,
+                    long: long,
+                    address: address,
+                    phoneNumber: phoneNumber,
+                    email: email
+                })
+            const response = {
+                success: true,
+                message: 'Contact updated successfully',
+                data: contactUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
+        response.success = false;
         response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
-}
+};
+
 
 
 // getContactAs...
 
 module.exports.getContact = async (req, res) => {
     try {
-        const getData = await adminModel.find()
-        if (!getData) {
+        const getData = await contactModel.find()
+        if (!getData.length > 0) {
             response.success = false,
                 response.message = "'User Not Found",
                 response.data = null,
                 res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'contactAs Get successfully';
+            response.data = getData;
+            res.status(200).json(response);
         }
-        response.success = true;
-        response.message = 'AboutAs Get successfully';
-        response.data = getData;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -372,19 +415,38 @@ module.exports.getContact = async (req, res) => {
 
 module.exports.addSocialLink = async (req, res) => {
     try {
-        const { socialLinks } = req.body;
-        if (!socialLinks) {
-            response.success = false,
-                response.message = "'SocialLinks Not Found",
-                response.data = null,
-                res.status(404).json(response)
+        const { facebook, linkedin, twitter, instagram, snapchat, _id } = req.body;
+        const existingContact = await socialModel.findOne({ _id: _id });
+        if (!existingContact) {
+            const newSocialLink = new socialModel({
+                _id,
+                facebook,
+                linkedin,
+                twitter,
+                instagram,
+                snapchat
+            });
+            await newSocialLink.save();
+            response.success = true;
+            response.message = 'Social links added successfully';
+            response.data = newSocialLink;
+            res.status(200).json(response);
+        } else {
+            const socialLinksUpdate = await socialModel.findByIdAndUpdate({ _id: _id },
+                {
+                    facebook: facebook,
+                    linkedin: linkedin,
+                    twitter: twitter,
+                    instagram: instagram,
+                    snapchat: snapchat
+                })
+            const response = {
+                success: true,
+                message: 'socialLinks updated successfully',
+                data: socialLinksUpdate,
+            };
+            res.status(200).json(response);
         }
-        const newSocialLink = new adminModel({ socialLinks });
-        await newSocialLink.save();
-        response.success = true;
-        response.message = 'Social links added successfully';
-        response.data = newSocialLink;
-        res.status(200).json(response);
     } catch (error) {
         console.error(error);
         console.error(error);
@@ -396,7 +458,7 @@ module.exports.addSocialLink = async (req, res) => {
 // getOneSocialLinks.....
 module.exports.getSocialLink = async (req, res) => {
     try {
-        const socialLink = await adminModel.find();
+        const socialLink = await socialModel.find();
         if (!socialLink) {
             response.success = false;
             response.message = 'Social link not found';
@@ -414,44 +476,59 @@ module.exports.getSocialLink = async (req, res) => {
         res.status(500).json(response);
     }
 };
+
+
 // PrivacyPolicy
-
-
 module.exports.addPolicy = async (req, res) => {
     try {
-        const { heading, description } = req.body;
-        const privacyPolicyAdd = await adminModel({
-            heading: heading,
-            description: description
-        });
-        await privacyPolicyAdd.save();
-
-        response.success = true;
-        response.message = 'Add Policy&Privacy successfully';
-        response.data = privacyPolicyAdd;
-        return res.status(200).json(response);
+        const { heading, description, _id } = req.body;
+        const existingContact = await policy.findOne({ _id: _id });
+        if (!existingContact) {
+            const privacyPolicyAdd = await policy({
+                _id: _id,
+                heading: heading,
+                description: description
+            });
+            await privacyPolicyAdd.save();
+            response.success = true;
+            response.message = 'Add Policy&Privacy successfully';
+            response.data = privacyPolicyAdd;
+            return res.status(200).json(response);
+        } else {
+            const policyUpdate = await policy.findByIdAndUpdate({ _id: _id },
+                {
+                    heading: heading,
+                    description: description
+                })
+            const response = {
+                success: true,
+                message: 'policy updated successfully',
+                data: policyUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
         res.status(500).json(response);
     }
 }
-
 // getPrivacy&Policy
 
 module.exports.getPolicy = async (req, res) => {
     try {
-        const privacyPolicy = await adminModel.find();
-        if (!privacyPolicy) {
+        const privacyPolicy = await policy.find();
+        if (!privacyPolicy.length > 0) {
             response.success = false,
                 response.message = "'Privacy Policy not found",
                 response.data = null,
                 res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Policy And Privacy Get successfully';
+            response.data = privacyPolicy;
+            return res.status(200).json(response);
         }
-        response.success = true;
-        response.message = 'Policy And Privacy Get successfully';
-        response.data = privacyPolicy;
-        return res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -463,17 +540,32 @@ module.exports.getPolicy = async (req, res) => {
 
 module.exports.addTermsAndCondition = async (req, res) => {
     try {
-        const { heading, description } = req.body;
-        const privacyPolicyAdd = await adminModel({
-            heading: heading,
-            description: description
-        });
-        await privacyPolicyAdd.save();
-
-        response.success = true;
-        response.message = 'Add Terms&Condition successfully';
-        response.data = privacyPolicyAdd;
-        return res.status(200).json(response);
+        const { heading, description, _id } = req.body;
+        const existingTerms = await terms.findOne({ _id: _id });
+        if (!existingTerms) {
+            const termsAdd = await terms({
+                _id: _id,
+                heading: heading,
+                description: description
+            });
+            await termsAdd.save();
+            response.success = true;
+            response.message = 'Add Terms successfully';
+            response.data = termsAdd;
+            return res.status(200).json(response);
+        } else {
+            const termsUpdate = await terms.findByIdAndUpdate({ _id: _id },
+                {
+                    heading: heading,
+                    description: description
+                })
+            const response = {
+                success: true,
+                message: 'terms updated successfully',
+                data: termsUpdate,
+            };
+            res.status(200).json(response);
+        }
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -484,17 +576,18 @@ module.exports.addTermsAndCondition = async (req, res) => {
 // getTermsAnd Condition....
 module.exports.getTermsAndCondition = async (req, res) => {
     try {
-        const user = await adminModel.find();
-        if (!user) {
+        const user = await terms.find();
+        if (!user.length > 0) {
             response.success = false,
                 response.message = "'Terms And Conditon not found",
                 response.data = null,
                 res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Terms And Conditon Get successfully';
+            response.data = user;
+            return res.status(200).json(response);
         }
-        response.success = true;
-        response.message = 'Terms And Conditon Get successfully';
-        response.data = user;
-        return res.status(200).json(response);
     } catch (error) {
         console.error(error);
         response.message = 'Internal Server Error';
@@ -505,26 +598,136 @@ module.exports.getTermsAndCondition = async (req, res) => {
 
 
 // blogs....
-exports.uploadImage = async (req, res) => {
-  try {
-    const {  heading, description } = req.body;
-    const image = req.file.path;
 
-    if (!heading || !image || !description) {
-      return res.status(400).json({ code: 400, message: 'Bad Request' });
+  module.exports.addBlog = async (req, res) => {
+    try {
+        const { heading, description ,_id} = req.body;
+        const existingTerms = await blog.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newBlog = new blog({
+            _id: _id ,
+            heading: heading,
+            description: description,
+            images: imagePaths,
+        });
+
+        const savedBlog = await newBlog.save();
+
+        response.success = true;
+        response.message = 'Blog added successfully';
+        response.data = savedBlog;
+
+        res.status(201).json(response);
+    }else{
+        const blogUpdate = await blog.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                description: description,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'blog updated successfully',
+            data: blogUpdate,
+        };
+        res.status(200).json(response);
+
     }
-
-    const newFile = new adminModel({ heading, image, description });
-    const response = await newFile.save();
-
-    if (response) {
-      return res.status(200).json({ code: 200, message: 'File and data uploaded successfully' });
-    } else {
-      return res.status(500).json({ code: 500, message: 'Failed to save file and data' });
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
     }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ code: 500, message: 'Server Error' });
-  }
 };
 
+
+// getBlog.....
+module.exports.getblog = async (req, res) => {
+    try {
+        const blogs = await blog.find();
+        if (!blogs) {
+            response.success = false,
+                response.message = "'blog not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Blog Get successfully';
+            response.data = blogs;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+module.exports.getOneblog = async (req, res) => {
+    try {
+        const {_id}=req.params
+        const blogs = await blog.findById({_id:_id});
+        if (!blogs) {
+            response.success = false,
+                response.message = "'blog not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Blog Get successfully';
+            response.data = blogs;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+module.exports.getAllUserByAdmin = async (req, res) => {
+    try {
+        const users = await user.find();
+        if (!users) {
+            response.success = false,
+                response.message = "'users not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Users Get successfully';
+            response.data = users;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+module.exports.getOneUserByAdmin = async (req, res) => {
+    try {
+        const {_id}=req.params
+        const users = await user.find({_id:_id});
+        if (!users) {
+            response.success = false,
+                response.message = "'users not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'Users Get successfully';
+            response.data = users;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}

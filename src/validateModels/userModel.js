@@ -26,6 +26,11 @@ module.exports.userValidationSchema = Joi.object({
     free_message: Joi.string(),
     is_verified: Joi.boolean(),
     is_flagged: Joi.boolean(),
+    role: Joi.number(),
+    active: Joi.boolean(),
+    inactive: Joi.boolean(),
+    friends: Joi.object(),
+
 });
 
 

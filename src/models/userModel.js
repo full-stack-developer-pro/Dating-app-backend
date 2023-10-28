@@ -85,6 +85,20 @@ const userSchema = new mongoose.Schema({
     lastLoginIP: {
         type: String, 
     },
+    role:{
+        type:String
+    },
+    friends:{
+      type:Object,
+    },
+    active: {
+        type: Boolean,
+        default: true, // Set to true by default
+    },
+    inactive: {
+        type: Boolean,
+        default: false, // Set to false by default
+    },
 }, 
 {
     timestamps: true,

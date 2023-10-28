@@ -19,21 +19,23 @@ const adminSchema = new mongoose.Schema({
     password: {
         type: String,
     },
-    heading: {
+    Heading: {
         type: String,
         
     },
-    description: {
+    Hescription: {
         type: String,
       
     },
-    bottomHeading: {
+    BottomHeading: {
         type: String,
         
     },
-    bottomDescription: {
+    BottomDescription: {
         type: String,
        
+        
+
     },
     lat: {
         type: String,

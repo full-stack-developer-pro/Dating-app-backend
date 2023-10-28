@@ -1,7 +1,17 @@
 const adminCtr = require('../controllers/adminController')
 const multer = require('multer');
-const upload = multer({dest:'uploads'})
 
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'uploads');
+  },
+  filename: function (req, file, cb) {
+      cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 
 
@@ -24,13 +34,19 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getAboutAs",adminCtr.getAbout)
     app.post("/api/admin/contactAs",validator.body(adminValidator.contact),adminCtr.addContact)
     app.get("/api/admin/getcontactAs",adminCtr.getContact)
-    app.post("/api/admin/socialLinks",adminCtr.addSocialLink)
+    app.post("/api/admin/socialLinks",validator.body(adminValidator.socialLinks),adminCtr.addSocialLink)
     app.get("/api/admin/getSocialLinks",adminCtr.getSocialLink)
-    app.post("/api/admin/policy&Privacy",adminCtr.addPolicy)
+    app.post("/api/admin/policy&Privacy",validator.body(adminValidator.policy),adminCtr.addPolicy)
     app.get("/api/admin/getPolicy&Privacy",adminCtr.getPolicy)
     app.post("/api/admin/terms&condition",adminCtr.addTermsAndCondition)
     app.get("/api/admin/getTerms&Condition",adminCtr.getTermsAndCondition)
-    app.post('/api/admin/upload',upload.single('file'),adminCtr.uploadImage)
+
+    app.post('/api/admin/blog',upload.array('images',5),adminCtr.addBlog)
+    app.get("/api/admin/getBlog",adminCtr.getblog)
+    app.get("/api/admin/getOneBlog/:_id",adminCtr.getOneblog)
+    app.get("/api/user/getAllUserByAdmin",adminCtr.getAllUserByAdmin)
+    app.get("/api/user/getOneUserByAdmin/:_id",adminCtr.getOneUserByAdmin)
+
 
 
   }
