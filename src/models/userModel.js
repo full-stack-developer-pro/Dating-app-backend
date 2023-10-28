@@ -87,7 +87,15 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type:String
-    }
+    },
+    active: {
+        type: Boolean,
+        default: true, // Set to true by default
+    },
+    inactive: {
+        type: Boolean,
+        default: false, // Set to false by default
+    },
 }, 
 {
     timestamps: true,
