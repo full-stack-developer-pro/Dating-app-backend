@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
         type : String,
     },
     timezone: {
-        type : String,
+        type : Object,
     },
     height: {
         type : Number,
