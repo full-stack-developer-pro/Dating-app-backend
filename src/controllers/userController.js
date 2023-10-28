@@ -36,6 +36,7 @@ module.exports.addUser = async (req, res) => {
       free_message,
       is_verified,
       is_flagged,
+      role
     } = req.body;
 
     const userId = uuidv4();
@@ -78,6 +79,7 @@ module.exports.addUser = async (req, res) => {
         free_message,
         is_verified,
         is_flagged,
+        role
       });
       addUser.last_login = new Date();
       addUser.online = true;

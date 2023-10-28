@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
         type : String,
     },
     timezone: {
-        type : Array,
+        type : Object,
     },
     height: {
         type : Number,
@@ -85,6 +85,9 @@ const userSchema = new mongoose.Schema({
     lastLoginIP: {
         type: String, 
     },
+    role:{
+        type:String
+    }
 }, 
 {
     timestamps: true,

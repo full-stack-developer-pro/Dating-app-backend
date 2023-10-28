@@ -44,6 +44,7 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getBlog",adminCtr.getblog)
     app.get("/api/admin/getOneBlog/:_id",adminCtr.getOneblog)
     app.get("/api/user/getAllUserByAdmin",adminCtr.getAllUserByAdmin)
+    app.get("/api/user/getOneUserByAdmin/:_id",adminCtr.getOneUserByAdmin)
 
 
 
