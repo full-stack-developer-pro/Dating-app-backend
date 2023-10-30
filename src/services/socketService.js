@@ -3,6 +3,12 @@ const chatModel = require("../models/chatModel");
 
 function initializeSocketServer(server) {
   const io = socketIo(server);
+  // const io = new Server(server, {
+  //   cors: {
+  //     origin: 'http://localhost:3000',
+  //     methods: ['GET', 'POST'],
+  //   },
+  // });
 
   io.on('connection', (socket) => {
     console.log('A user connected');

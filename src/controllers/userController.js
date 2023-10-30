@@ -45,13 +45,6 @@ module.exports.addUser = async (req, res) => {
     const userIP = req.ip;
 
     const existingUser = await userModel.findOne({ email });
-    const existingUserWithUsername = await userModel.findOne({ username });
-    if (existingUserWithUsername) {
-      response.success = false;
-      response.message = "Username already exists";
-      response.data = null;
-      return res.status(200).json(response);
-    }
 
     if (existingUser) {
       response.success = false;
@@ -262,8 +255,8 @@ module.exports.userDelete = async (req, res) => {
 module.exports.getDetailsById = async (req, res) => {
   try {
     const { id } = req.params;
+    
 
-    // Use the aggregation framework to fetch the user's friends
     const user = await userModel.aggregate([
       {
         $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -285,7 +278,7 @@ module.exports.getDetailsById = async (req, res) => {
             },
             {
               $lookup: {
-                from: "users", 
+                from: "users",
                 let: {
                   friendId: {
                     $cond: [
@@ -300,10 +293,10 @@ module.exports.getDetailsById = async (req, res) => {
                     $match: { $expr: { $eq: ["$_id", "$$friendId"] } },
                   },
                   {
-                    $project: { _id: 0, username: 1 },
+                    $project: { _id: 1 },
                   },
                 ],
-                as: "friend",
+                as: "friendIds", 
               },
             },
           ],
@@ -338,14 +331,7 @@ module.exports.getDetailsById = async (req, res) => {
           free_message: 1,
           is_verified: 1,
           is_flagged: 1,
-          friends: 1,
-          friends: {
-            $map: {
-              input: "$friends.friend",
-              as: "friend",
-              in: "$$friend.username",
-            },
-          },
+          friends: "$friends.friendIds", 
         },
       },
     ]);
@@ -375,7 +361,6 @@ module.exports.getDetailsById = async (req, res) => {
     res.status(500).json(response);
   }
 };
-
 
 
 
