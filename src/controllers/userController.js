@@ -255,7 +255,6 @@ module.exports.userDelete = async (req, res) => {
 module.exports.getDetailsById = async (req, res) => {
   try {
     const { id } = req.params;
-    
 
     const user = await userModel.aggregate([
       {
@@ -296,7 +295,126 @@ module.exports.getDetailsById = async (req, res) => {
                     $project: { _id: 1 },
                   },
                 ],
-                as: "friendIds", 
+                as: "friends",
+              },
+            },
+            {
+              $unwind: "$friends"
+            },
+            {
+              $group: {
+                _id: null,
+                friends: { $push: "$friends._id" }
+              }
+            }
+          ],
+          as: "friends",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: 1,
+          is_fake: 1,
+          name: 1,
+          username: 1,
+          email: 1,
+          password: 1,
+          gender: 1,
+          birthdate: 1,
+          description: 1,
+          country: 1,
+          city: 1,
+          postcode: 1,
+          timezone: 1,
+          height: 1,
+          weight: 1,
+          eye_color: 1,
+          hair_color: 1,
+          hair_length: 1,
+          marital_status: 1,
+          interests: 1,
+          credits: 1,
+          ip_address: 1,
+          free_message: 1,
+          is_verified: 1,
+          is_flagged: 1,
+          friends: 1,
+        },
+      },
+    ]);
+
+    if (user.length === 0) {
+      const response = {
+        success: false,
+        message: "User Not Found",
+        data: null,
+      };
+      return res.status(404).json(response);
+    }
+
+    const response = {
+      success: true,
+      message: "User Get Successfully",
+      data: user[0],
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    const response = {
+      success: false,
+      message: "Internal Server Error",
+      data: null,
+    };
+    res.status(500).json(response);
+  }
+};
+
+
+module.exports.getAllFriends = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userWithFriends = await userModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(id) },
+      },
+      {
+        $lookup: {
+          from: "friends",
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $eq: ["$user1", "$$userId"] },
+                    { $eq: ["$user2", "$$userId"] },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                let: {
+                  friendId: {
+                    $cond: [
+                      { $eq: ["$user1", "$$userId"] },
+                      "$user2",
+                      "$user1",
+                    ],
+                  },
+                },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$friendId"] } },
+                  },
+                  {
+                    $project: { _id: 1, name: 1, username: 1, email: 1, gender: 1, birthdate: 1, description: 1 },
+                  },
+                ],
+                as: "friendProfiles",
               },
             },
           ],
@@ -331,12 +449,12 @@ module.exports.getDetailsById = async (req, res) => {
           free_message: 1,
           is_verified: 1,
           is_flagged: 1,
-          friends: "$friends.friendIds", 
+          friends: "$friends.friendProfiles",
         },
       },
     ]);
 
-    if (user.length === 0) {
+    if (userWithFriends.length === 0) {
       const response = {
         success: false,
         message: "User Not Found",
@@ -347,8 +465,8 @@ module.exports.getDetailsById = async (req, res) => {
 
     const response = {
       success: true,
-      message: "User Get Successfully",
-      data: user[0],
+      message: "User's Friends Get Successfully",
+      data: userWithFriends[0],
     };
     res.status(200).json(response);
   } catch (error) {
