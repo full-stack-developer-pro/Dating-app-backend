@@ -37,9 +37,9 @@ module.exports.addUser = async (req, res) => {
       is_verified,
       is_flagged,
       role,
-      friends
+      friends,
+      status
     } = req.body;
-    const { active, inactive } = req.body;
     const userId = uuidv4();
 
     const userIP = req.ip;
@@ -82,9 +82,7 @@ module.exports.addUser = async (req, res) => {
         is_flagged,
         role,
         friends,
-        active: active || true, 
-
-        inactive: inactive || false,
+        status
       });
       addUser.last_login = new Date();
       addUser.online = true;
@@ -172,6 +170,7 @@ module.exports.updateUser = async (req, res) => {
       interests,
       credits,
       free_message,
+      status
     } = req.body;
 
     const updateData = {
@@ -194,6 +193,7 @@ module.exports.updateUser = async (req, res) => {
       interests,
       credits,
       free_message,
+      status
     };
 
     const update = await userModel.findByIdAndUpdate(userId, updateData);
