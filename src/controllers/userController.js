@@ -371,13 +371,11 @@ module.exports.getDetailsById = async (req, res) => {
 };
 
 
-
-
 module.exports.getAllFriends = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const userWithFriends = await userModel.aggregate([
+    const user = await userModel.aggregate([
       {
         $match: { _id: new mongoose.Types.ObjectId(id) },
       },
@@ -413,12 +411,31 @@ module.exports.getAllFriends = async (req, res) => {
                     $match: { $expr: { $eq: ["$_id", "$$friendId"] } },
                   },
                   {
-                    $project: { _id: 1, name: 1, username: 1, email: 1, gender: 1, birthdate: 1, description: 1 },
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      username: 1,
+                      gender: 1,
+                      description: 1,
+                      country: 1,
+                      city: 1,
+                    },
                   },
                 ],
-                as: "friendProfiles",
+                as: "friends",
               },
             },
+            {
+              $unwind: "$friends"
+            },
+            {
+              $project: {
+                "_id": 0,
+                "user1": 0,
+                "user2": 0,
+                "__v": 0
+              }
+            }
           ],
           as: "friends",
         },
@@ -451,12 +468,12 @@ module.exports.getAllFriends = async (req, res) => {
           free_message: 1,
           is_verified: 1,
           is_flagged: 1,
-          friends: "$friends.friendProfiles",
+          friends: 1,
         },
       },
     ]);
 
-    if (userWithFriends.length === 0) {
+    if (user.length === 0) {
       const response = {
         success: false,
         message: "User Not Found",
@@ -468,7 +485,7 @@ module.exports.getAllFriends = async (req, res) => {
     const response = {
       success: true,
       message: "User's Friends Get Successfully",
-      data: userWithFriends[0],
+      data: user[0],
     };
     res.status(200).json(response);
   } catch (error) {
