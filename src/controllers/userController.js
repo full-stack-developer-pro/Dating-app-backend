@@ -302,9 +302,9 @@ module.exports.getDetailsById = async (req, res) => {
               $unwind: "$friends"
             },
             {
-              $group: {
-                _id: null,
-                friends: { $push: "$friends._id" }
+              $project: {
+                _id: 0,
+                friends: "$friends._id" 
               }
             }
           ],
@@ -339,7 +339,7 @@ module.exports.getDetailsById = async (req, res) => {
           free_message: 1,
           is_verified: 1,
           is_flagged: 1,
-          friends: 1,
+          friends: 1, 
         },
       },
     ]);
@@ -369,6 +369,8 @@ module.exports.getDetailsById = async (req, res) => {
     res.status(500).json(response);
   }
 };
+
+
 
 
 module.exports.getAllFriends = async (req, res) => {
