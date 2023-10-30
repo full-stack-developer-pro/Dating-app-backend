@@ -91,13 +91,10 @@ const userSchema = new mongoose.Schema({
     friends:{
       type:Object,
     },
-    active: {
-        type: Boolean,
-        default: true, 
-    },
-    inactive: {
-        type: Boolean,
-        default: false, 
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active',
     },
 }, 
 {
