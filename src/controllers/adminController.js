@@ -6,6 +6,10 @@ const terms = require('../models/termsAndCondition')
 const policy = require('../models/policyModel')
 const blog = require('../models/blogModel')
 const user =require('../models/userModel')
+const topBanner =require('../models/topBanner')
+const middleBanner = require('../models/middleBanner')
+const secondLastBanner = require('../models/SecondLastBanner')
+const lastBanner =require('../models/lastBanner')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -723,6 +727,284 @@ module.exports.getOneUserByAdmin = async (req, res) => {
             response.success = true;
             response.message = 'Users Get successfully';
             response.data = users;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+// addTopBanner...........
+module.exports.addTopBanner = async (req, res) => {
+    try {
+        const { heading, description ,_id} = req.body;
+        const existingTerms = await topBanner.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newTopBanner = new topBanner({
+            _id: _id ,
+            heading: heading,
+            description: description,
+            images: imagePaths,
+        });
+
+        const topBanners = await newTopBanner.save();
+
+        response.success = true;
+        response.message = 'TopBanner added successfully';
+        response.data = topBanners;
+
+        res.status(201).json(response);
+    }else{
+        const topBannerUpdate = await topBanner.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                description: description,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'topBanner updated successfully',
+            data: topBannerUpdate,
+        };
+        res.status(200).json(response);
+
+    }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+};
+
+
+// getTopBanner.....
+module.exports.getTopBanner = async (req, res) => {
+    try {
+        const topBanners = await topBanner.find();
+        if (!topBanners) {
+            response.success = false,
+                response.message = "'topBanners not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'topBanners Get successfully';
+            response.data = topBanners;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+// addMiddleBanner...........
+module.exports.addMiddleBanner = async (req, res) => {
+    try {
+        const { heading, description ,_id} = req.body;
+        const existingTerms = await middleBanner.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newmiddleBanner = new middleBanner({
+            _id: _id ,
+            heading: heading,
+            description: description,
+            images: imagePaths,
+        });
+
+        const middleBanners = await newmiddleBanner.save();
+
+        response.success = true;
+        response.message = 'TopBanner added successfully';
+        response.data = middleBanners;
+
+        res.status(201).json(response);
+    }else{
+        const middleBannerUpdate = await middleBanner.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                description: description,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'topBanner updated successfully',
+            data: middleBannerUpdate,
+        };
+        res.status(200).json(response);
+
+    }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+};
+
+
+// getMiddleBanner.....
+module.exports.getMiddleBanner = async (req, res) => {
+    try {
+        const topBanners = await middleBanner.find();
+        if (!topBanners) {
+            response.success = false,
+                response.message = "'topBanners not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'topBanners Get successfully';
+            response.data = topBanners;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+// addSecondLastBanner...........
+module.exports.addSecondLastBanner = async (req, res) => {
+    try {
+        const { heading, description ,_id} = req.body;
+        const existingTerms = await secondLastBanner.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newSecondLastBanner = new secondLastBanner({
+            _id: _id ,
+            heading: heading,
+            description: description,
+            images: imagePaths,
+        });
+
+        const secondLastBanners = await newSecondLastBanner.save();
+
+        response.success = true;
+        response.message = 'secondLastBanners added successfully';
+        response.data = secondLastBanners;
+
+        res.status(201).json(response);
+    }else{
+        const secondLastBannersUpdate = await secondLastBanner.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                description: description,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'secondLastBanners updated successfully',
+            data: secondLastBannersUpdate,
+        };
+        res.status(200).json(response);
+
+    }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+};
+
+
+// getSecondLastBanner.....
+module.exports.getSecondLastBanner = async (req, res) => {
+    try {
+        const secondLastBanners = await secondLastBanner.find();
+        if (!secondLastBanners) {
+            response.success = false,
+                response.message = "'secondLastBanners not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'secondLastBanners Get successfully';
+            response.data = secondLastBanners;
+            return res.status(200).json(response);
+        }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+// addLastBanner...........
+module.exports.addLastBanner = async (req, res) => {
+    try {
+        const { heading ,_id} = req.body;
+        const existingTerms = await lastBanner.findOne({ _id: _id });
+        const images = req.files;
+        const imagePaths = images.map((image) => ({
+            path: image.path,
+            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+        }));
+        if (!existingTerms) {
+        const newLastBanner = new lastBanner({
+            _id: _id ,
+            heading: heading,
+            images: imagePaths,
+        });
+
+        const lastBanners = await newLastBanner.save();
+
+        response.success = true;
+        response.message = 'LastBanners added successfully';
+        response.data = lastBanners;
+
+        res.status(201).json(response);
+    }else{
+        const lastBannersUpdate = await lastBanner.findByIdAndUpdate({ _id: _id },
+            {
+                heading: heading,
+                images:imagePaths
+            })
+        const response = {
+            success: true,
+            message: 'LastBanners updated successfully',
+            data: lastBannersUpdate,
+        };
+        res.status(200).json(response);
+
+    }
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+};
+
+
+// getSecondLastBanner.....
+module.exports.getLastBanner = async (req, res) => {
+    try {
+        const lastBanners = await lastBanner.find();
+        if (!lastBanners) {
+            response.success = false,
+                response.message = "'LastBanners not found",
+                response.data = null,
+                res.status(404).json(response)
+        } else {
+            response.success = true;
+            response.message = 'LastBanners Get successfully';
+            response.data = lastBanners;
             return res.status(200).json(response);
         }
     } catch (error) {
