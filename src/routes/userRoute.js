@@ -15,6 +15,7 @@ module.exports=(app,validator)=>{
     app.put("/api/user/update/:id", userCtr.updateUser);
     app.get("/api/user/getDetailsById/:id", userCtr.getDetailsById);
     app.delete("/api/user/delete/:_id", userCtr.userDelete);
+    app.get("/api/user/getAllFriends/:id", userCtr.getAllFriends);
   
     // chat route
   
