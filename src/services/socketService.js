@@ -13,7 +13,7 @@ function initializeSocketServer(server) {
   io.on('connection', (socket) => {
     console.log('A user connected');
 
-    socket.on('chat message', async (data) => { 
+    socket.on('chat_message', async (data) => { 
       try {
         const newChat = new chatModel({
           senderId: data.senderId,
@@ -25,10 +25,10 @@ function initializeSocketServer(server) {
         const savedChat = await newChat.save();
 
         // Emit the chat message to the receiver's socket
-        io.to(data.receiverSocketId).emit('chat message', savedChat);
+        io.to(data.receiverSocketId).emit('chat_message', savedChat);
       } catch (error) {
         console.error(error);
-        socket.emit('chat error', { message: 'Failed to send message' });
+        socket.emit('chat_error', { message: 'Failed to send message' });
       }
     });
 
