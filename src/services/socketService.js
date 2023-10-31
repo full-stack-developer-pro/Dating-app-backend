@@ -4,7 +4,7 @@ const chatModel = require("../models/chatModel");
 function initializeSocketServer(server) {
   const io = socketIo(server, {
     cors: {
-      origin: 'https://dating-app-backend-xyrj.onrender.com:3000',
+      origin: '*',
       methods: ['GET', 'POST'],
     },
   });
