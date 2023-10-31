@@ -1,43 +1,34 @@
 const connectedUsers = {};
-const socketIo = require('socket.io');
 const chatModel = require("../models/chatModel");
 const redis = require('ioredis');
 
 function initializeSocketServer(server) {
-  const io = socketIo(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST'],
-    },
-  });
+  const io = require('socket.io')(server, { cors: { origin: '*' } });
 
   io.on('connection', (socket) => {
     console.log('A user connected');
 
-     socket.on('user_added', (userId) => {
-    connectedUsers[userId] = socket.id;
-  });
+    socket.on('user_added', (userId) => {
+      connectedUsers[userId] = socket.id;
+    });
 
-    socket.on('chat_message', async (data) => { 
+    socket.on('chat_message', async (data) => {
       try {
         const newChat = new chatModel({
           senderId: data.senderId,
           receiverId: data.receiverId,
-          message: data.message 
+          message: data.message,
         });
 
         const savedChat = await newChat.save();
 
-        // Emit the chat message to the receiver's socket
-       // io.to(data.receiverSocketId).emit('chat_message', savedChat);
+        const receiverSocketId = await redis.get(data.receiverSocketId);
 
-       const receiverSocketId = await redis.get(data.receiverSocketId);
-
-       if (receiverSocketId) {
-         io.to(receiverSocketId).emit('chat_message', savedChat);
-       } else {
-         // Handle the case where the receiver's socket ID is not found (user offline, etc.)
-       }
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('chat_message', savedChat);
+        } else {
+          // Handle the case where the receiver's socket ID is not found (user offline, etc.)
+        }
       } catch (error) {
         console.error(error);
         socket.emit('chat_error', { message: 'Failed to send message' });
