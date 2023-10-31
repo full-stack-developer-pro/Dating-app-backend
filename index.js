@@ -22,12 +22,12 @@ app.use(cors());
 
 
 
-// Import the socket service and initialize Socket.io
 const initializeSocketServer = require('./src/services/socketService');
 const server = http.createServer(app);
-initializeSocketServer(server);
+initializeSocketServer.initializeSocketServer(server);
 
-app.set('io', initializeSocketServer.io);
+app.set('io', initializeSocketServer.getSocketIO()); 
+
 
 
 //connect database......

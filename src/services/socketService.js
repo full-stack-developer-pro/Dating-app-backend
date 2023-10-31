@@ -1,9 +1,12 @@
 const connectedUsers = {};
+const socketIo = require('socket.io');
 const chatModel = require("../models/chatModel");
 const redis = require('ioredis');
 
+let io; 
+
 function initializeSocketServer(server) {
-  const io = require('socket.io')(server, { cors: { origin: '*' } });
+  io = socketIo(server, { cors: { origin: '*' } }); 
 
   io.on('connection', (socket) => {
     console.log('A user connected');
@@ -27,7 +30,7 @@ function initializeSocketServer(server) {
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('chat_message', savedChat);
         } else {
-          // Handle the case where the receiver's socket ID is not found (user offline, etc.)
+          
         }
       } catch (error) {
         console.error(error);
@@ -41,7 +44,11 @@ function initializeSocketServer(server) {
   });
 }
 
-module.exports = initializeSocketServer;
+module.exports = {
+  initializeSocketServer,
+  getSocketIO: () => io, 
+};
+
 
 
 module.exports.getChattedUsers =  async (req, res) => {
