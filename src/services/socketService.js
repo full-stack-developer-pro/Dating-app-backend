@@ -4,7 +4,7 @@ const chatModel = require("../models/chatModel");
 function initializeSocketServer(server) {
   const io = socketIo(server, {
     cors: {
-      origin: 'https://dating-app-backend-xyrj.onrender.com',
+      origin: 'https://dating-app-backend-xyrj.onrender.com:3000',
       methods: ['GET', 'POST'],
     },
   });
@@ -17,8 +17,7 @@ function initializeSocketServer(server) {
         const newChat = new chatModel({
           senderId: data.senderId,
           receiverId: data.receiverId,
-          message: data.message ,
-          createdBy: data.senderId 
+          message: data.message 
         });
 
         const savedChat = await newChat.save();
