@@ -4,7 +4,6 @@ var app = express();
 var bodyParser = require('body-parser');
 const validator = require('express-joi-validation').createValidator({passError:true})
 const http = require('http');
-const server = http.createServer(app);
 const cors = require('cors');
 
 const port = process.env.PORT
@@ -17,14 +16,18 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 
+//app.set('io', io);
 
 app.use(cors());
 
 
 
-// Import the socket service and initialize Socket.io
 const initializeSocketServer = require('./src/services/socketService');
-initializeSocketServer(server);
+const server = http.createServer(app);
+initializeSocketServer.initializeSocketServer(server);
+
+app.set('io', initializeSocketServer.getSocketIO()); 
+
 
 
 //connect database......

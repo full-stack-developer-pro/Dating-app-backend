@@ -1,31 +1,37 @@
+const connectedUsers = {};
 const socketIo = require('socket.io');
 const chatModel = require("../models/chatModel");
+const redis = require('ioredis');
+
+let io; 
 
 function initializeSocketServer(server) {
-  const io = socketIo(server);
-  // const io = new Server(server, {
-  //   cors: {
-  //     origin: 'http://localhost:3000',
-  //     methods: ['GET', 'POST'],
-  //   },
-  // });
+  io = socketIo(server, { cors: { origin: '*' } }); 
 
   io.on('connection', (socket) => {
     console.log('A user connected');
 
-    socket.on('chat_message', async (data) => { 
+    socket.on('user_added', (userId) => {
+      connectedUsers[userId] = socket.id;
+    });
+
+    socket.on('chat_message', async (data) => {
       try {
         const newChat = new chatModel({
           senderId: data.senderId,
           receiverId: data.receiverId,
-          message: data.message ,
-          createdBy: data.senderId 
+          message: data.message,
         });
 
         const savedChat = await newChat.save();
 
-        // Emit the chat message to the receiver's socket
-        io.to(data.receiverSocketId).emit('chat_message', savedChat);
+        const receiverSocketId = await redis.get(data.receiverSocketId);
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('chat_message', savedChat);
+        } else {
+          
+        }
       } catch (error) {
         console.error(error);
         socket.emit('chat_error', { message: 'Failed to send message' });
@@ -38,7 +44,11 @@ function initializeSocketServer(server) {
   });
 }
 
-module.exports = initializeSocketServer;
+module.exports = {
+  initializeSocketServer,
+  getSocketIO: () => io, 
+};
+
 
 
 module.exports.getChattedUsers =  async (req, res) => {
