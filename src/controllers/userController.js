@@ -158,6 +158,7 @@ module.exports.updateUser = async (req, res) => {
       birthdate,
       description,
       country,
+      age,
       city,
       postcode,
       timezone,
@@ -182,6 +183,7 @@ module.exports.updateUser = async (req, res) => {
       description,
       country,
       city,
+      age,
       postcode,
       timezone,
       height,
@@ -197,12 +199,6 @@ module.exports.updateUser = async (req, res) => {
     };
 
     const update = await userModel.findByIdAndUpdate(userId, updateData);
-    if(username=== username){
-      response.success = false;
-      response.message = "Username already exist";
-      response.data = null;
-      res.status(200).json(response);
-    }
     if (update) {
       response.success = true;
       response.message = "User Updated Successfully";
