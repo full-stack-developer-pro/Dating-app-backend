@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 const validator = require('express-joi-validation').createValidator({passError:true})
 const http = require('http');
 const cors = require('cors');
+const socketIo = require('socket.io');
+const initializeSocketServer = require('./src/services/socketService');
 
 const port = process.env.PORT
 
@@ -22,11 +24,14 @@ app.use(cors());
 
 
 
-const initializeSocketServer = require('./src/services/socketService');
 const server = http.createServer(app);
-initializeSocketServer.initializeSocketServer(server);
 
-app.set('io', initializeSocketServer.getSocketIO()); 
+const io = require('socket.io')(server, { cors: { origin: '*' } });
+app.set('socketio', io);
+
+initializeSocketServer.initializeSocketServer(io);
+
+//app.set('io', initializeSocketServer.getSocketIO()); 
 
 
 
@@ -48,7 +53,7 @@ app.use((err, req, res, next) => {
         next()
     }
 })
- app.listen(port ,() => {
+server.listen(port ,() => {
   console.log('Server is listening on Port:', port)
 })
 
