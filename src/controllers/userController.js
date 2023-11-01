@@ -126,7 +126,6 @@ module.exports.verifyEmail = async (req, res) => {
     if (user.isVerified) {
       return res.status(200).json({ message: 'Email is already verified' });
     }
-
     if (user.verificationCode === verificationCode) {
       user.isVerified = true;
       await user.save();
@@ -139,6 +138,8 @@ module.exports.verifyEmail = async (req, res) => {
     return res.status(500).json({ error: 'Verification failed' });
   }
 }
+
+
 //login.........................
 
 module.exports.loginUser = async (req, res) => {
