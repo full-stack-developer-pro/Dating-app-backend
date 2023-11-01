@@ -96,6 +96,9 @@ const userSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active',
     },
+    verificationCode:{
+        type:String
+    },
 }, 
 {
     timestamps: true,
