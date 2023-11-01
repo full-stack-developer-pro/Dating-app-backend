@@ -6,7 +6,9 @@ const bcryptService = require("../services/bcryptService");
 const jwtServices = require("../services/jwtService");
 const campareService = require("../services/camprePassword");
 const { v4: uuidv4 } = require("uuid");
+const nodeMailer = require("nodemailer"); 
 const mongoose = require("mongoose");
+const messageModel =require('../models/chatModel')
 const online = require('online');
 const transporter = require('../services/emailVerifyService');
 
@@ -87,15 +89,24 @@ module.exports.addUser = async (req, res) => {
       status,
       verificationCode, 
     });
-
-    const mailOptions = {
-      from: 'kumarvinod91765@gmail.com',
-      to: email,
-      subject: 'text',
-      text: `Your verification code is: ${verificationCode}`,
-    };
-
-    await transporter(mailOptions); 
+    // const transporter = nodeMailer.createTransport({
+    //   host: process.env.SMTP_HOST,
+    //   port: process.env.SMTP_PORT,
+    //   service: process.env.SMTP_SERVICE,
+    //   secure: true,
+    //   auth: {
+    //     user: process.env.SMTP_MAIL,
+    //     pass: process.env.SMTP_PASSWORD,
+    //   },
+    // });
+    // const mailOptions = {
+    //   from: process.env.SMTP_MAIL,
+    //   to: options.email,
+    //   subject: options.subject,
+    //   text: options.message,
+    // };
+  
+    // await transporter.sendMail(mailOptions);
 
     addUser.last_login = new Date();
     addUser.online = true;
@@ -237,6 +248,7 @@ module.exports.updateUser = async (req, res) => {
     };
 
     const update = await userModel.findByIdAndUpdate(userId, updateData);
+
     if (update) {
       response.success = true;
       response.message = "User Updated Successfully";
@@ -284,6 +296,44 @@ module.exports.userDelete = async (req, res) => {
     res.status(500).json(response);
   }
 };
+
+module.exports.memberStatic = async (req, res) => {
+  try {
+    // Get total number of members
+    const totalMembers = await userModel.countDocuments();
+
+    // Get active members
+    const activeMembers = await userModel.countDocuments({ status: 'active' });
+
+    // Get members who joined today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const membersJoinedToday = await userModel.countDocuments({ createdAt: { $gte: today } });
+
+    // Get men who joined today
+    const menJoinedToday = await userModel.countDocuments({ gender: 'male', createdAt: { $gte: today } });
+
+    // Get women who joined today
+    const womenJoinedToday = await userModel.countDocuments({ gender: 'female', createdAt: { $gte: today } });
+
+    // Get messages sent today (you may need to define the message schema)
+    const messagesSentToday = await messageModel.countDocuments({ createdAt: { $gte: today } });
+
+    // Return the results as JSON
+    return res.json({
+      totalMembers,
+      activeMembers,
+      membersJoinedToday,
+      menJoinedToday,
+      womenJoinedToday,
+      messagesSentToday,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 
 
 module.exports.getDetailsById = async (req, res) => {
