@@ -1,12 +1,10 @@
 const connectedUsers = {};
-const socketIo = require('socket.io');
 const chatModel = require("../models/chatModel");
 const redis = require('ioredis');
 
 let io; 
 
-function initializeSocketServer(server) {
-  io = socketIo(server, { cors: { origin: '*' } }); 
+function initializeSocketServer(io) {
 
   io.on('connection', (socket) => {
     console.log('A user connected');

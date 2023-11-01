@@ -21,3 +21,11 @@ module.exports.user= async (req,res,next) => {
     console.log("Something Went Wrong");
   }
 }
+
+
+// const io = socketIo(server, {
+  //   cors: {
+  //     origin: '*',
+  //     methods: ['GET', 'POST'],
+  //   },
+  // // io.to(data.receiverSocketId).emit('chat_message', savedChat);
