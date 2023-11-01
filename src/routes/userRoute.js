@@ -11,6 +11,7 @@ const socketService = require('../services/socketService')
 
 module.exports=(app,validator)=>{
     app.post("/api/user/signup", validator.body(userModel.userValidationSchema), userCtr.addUser);
+    app.post("/api/user/verifyEmail", userCtr.verifyEmail);
     app.post("/api/user/Login", validator.body(userModel.loginUsers), userCtr.loginUser);
     app.put("/api/user/update/:id", userCtr.updateUser);
     app.get("/api/user/getDetailsById/:id", userCtr.getDetailsById);

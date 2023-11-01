@@ -8,6 +8,7 @@ const campareService = require("../services/camprePassword");
 const { v4: uuidv4 } = require("uuid");
 const mongoose = require("mongoose");
 const online = require('online');
+const transporter = require('../services/emailVerifyService');
 
 module.exports.addUser = async (req, res) => {
   try {
@@ -38,61 +39,72 @@ module.exports.addUser = async (req, res) => {
       is_flagged,
       role,
       friends,
-      status
+      status,
     } = req.body;
-    const userId = uuidv4();
 
+    const userId = uuidv4();
     const userIP = req.ip;
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     const existingUser = await userModel.findOne({ email });
-
     if (existingUser) {
       response.success = false;
       response.message = "User Already Exists";
       response.data = null;
       return res.status(409).send(response);
-    } else {
-      const hashedPassword = await bcryptService.hashPassword(password);
-      const addUser = await userModel.create({
-        id: userId,
-        is_fake,
-        username,
-        name,
-        email,
-        password: hashedPassword,
-        gender,
-        age,
-        birthdate,
-        description,
-        country,
-        city,
-        postcode,
-        timezone,
-        height,
-        weight,
-        eye_color,
-        hair_color,
-        hair_length,
-        marital_status,
-        interests,
-        credits,
-        ip_address: userIP,
-        free_message,
-        is_verified,
-        is_flagged,
-        role,
-        friends,
-        status
-      });
-      addUser.last_login = new Date();
-      addUser.online = true;
-      await addUser.save();
-
-      response.success = true;
-      response.message = "User Signup Successfully";
-      response.data = addUser;
-      return res.status(201).send(response);
     }
+
+    const hashedPassword = await bcryptService.hashPassword(password);
+    const addUser = await userModel.create({
+      id: userId,
+      is_fake,
+      username,
+      name,
+      email,
+      password: hashedPassword,
+      gender,
+      age,
+      birthdate,
+      description,
+      country,
+      city,
+      postcode,
+      timezone,
+      height,
+      weight,
+      eye_color,
+      hair_color,
+      hair_length,
+      marital_status,
+      interests,
+      credits,
+      ip_address: userIP,
+      free_message,
+      is_verified: false, 
+      is_flagged,
+      role,
+      friends,
+      status,
+      verificationCode, 
+    });
+
+    const mailOptions = {
+      from: 'kumarvinod91765@gmail.com',
+      to: email,
+      subject: 'text',
+      text: `Your verification code is: ${verificationCode}`,
+    };
+
+    await transporter(mailOptions); 
+
+    addUser.last_login = new Date();
+    addUser.online = true;
+    await addUser.save();
+
+    response.success = true;
+    response.message = "User Signup Successfully. Check your email for the verification code.";
+    response.data = addUser;
+    return res.status(201).send(response);
   } catch (error) {
     console.error(error);
     response.success = false;
@@ -102,6 +114,31 @@ module.exports.addUser = async (req, res) => {
   }
 };
 
+module.exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, verificationCode } = req.body;
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(200).json({ message: 'Email is already verified' });
+    }
+
+    if (user.verificationCode === verificationCode) {
+      user.isVerified = true;
+      await user.save();
+      return res.json({ message: 'Email verified successfully' });
+    } else {
+      return res.status(400).json({ error: 'Invalid verification code' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Verification failed' });
+  }
+}
 //login.........................
 
 module.exports.loginUser = async (req, res) => {
@@ -321,6 +358,7 @@ module.exports.getDetailsById = async (req, res) => {
           email: 1,
           password: 1,
           gender: 1,
+          age:1,
           birthdate: 1,
           description: 1,
           country: 1,
