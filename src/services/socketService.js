@@ -1,7 +1,8 @@
 const connectedUsers = {};
 const chatModel = require("../models/chatModel");
 const redis = require('ioredis');
-
+const mongoose = require('mongoose');
+const userModel = require("../models/userModel");
 let io; 
 
 function initializeSocketServer(io) {
@@ -47,9 +48,7 @@ module.exports = {
   getSocketIO: () => io, 
 };
 
-
-
-module.exports.getChattedUsers =  async (req, res) => {
+module.exports.getChattedUsers = async (req, res) => {
   const userId = req.query.userId;
 
   if (!userId) {
@@ -57,14 +56,41 @@ module.exports.getChattedUsers =  async (req, res) => {
   }
 
   try {
-    const uniqueUsers = await chatModel
-      .find({
-        $or: [{ senderId: userId }, { receiverId: userId }]
-      })
-      .distinct('senderId receiverId')
-      .exec();
+    const uniqueUsers = await chatModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: new mongoose.Types.ObjectId(userId) },
+            { receiverId: new mongoose.Types.ObjectId(userId) }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          users: { $addToSet: '$senderId' },
+          receivers: { $addToSet: '$receiverId' }
+        }
+      },
+      {
+        $project: {
+          _id: 0, 
+          uniqueUsers: { $setUnion: ['$users', '$receivers'] }
+        }
+      }
+    ]).exec();
 
-    res.json(uniqueUsers);
+    let uniqueUsersArray = uniqueUsers.length > 0 ? uniqueUsers[0].uniqueUsers : [];
+
+   
+    uniqueUsersArray = uniqueUsersArray.filter(id => id.toString() !== userId);
+
+    const usersWithNames = await userModel.find(
+      { _id: { $in: uniqueUsersArray } },
+      'name _id'
+    ).exec();
+
+    res.json(usersWithNames);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
