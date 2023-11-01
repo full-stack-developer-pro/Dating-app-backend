@@ -207,6 +207,7 @@ module.exports.updateUser = async (req, res) => {
       birthdate,
       description,
       country,
+      age,
       city,
       postcode,
       timezone,
@@ -231,6 +232,7 @@ module.exports.updateUser = async (req, res) => {
       description,
       country,
       city,
+      age,
       postcode,
       timezone,
       height,
@@ -246,8 +248,7 @@ module.exports.updateUser = async (req, res) => {
     };
 
     const update = await userModel.findByIdAndUpdate(userId, updateData);
-    
-    
+
     if (update) {
       response.success = true;
       response.message = "User Updated Successfully";
