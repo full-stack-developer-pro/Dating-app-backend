@@ -5,10 +5,10 @@ const mongoose = require('mongoose');
 const userModel = require("../models/userModel");
 let io; 
 
-
 function initializeSocketServer(io) {
   io.on('connection', (socket) => {
     console.log('A user connected');
+    let isFirstMessage = true; 
 
     socket.on('user_added', (userId) => {
       connectedUsers[userId] = socket.id;
@@ -20,25 +20,29 @@ function initializeSocketServer(io) {
         const receiverId = data.receiverId;
 
         const senderUser = await userModel.findById(senderId);
-        if (senderUser && senderUser.credits >= 100) {
+
+        if (isFirstMessage) {
+          isFirstMessage = false;
+        } else if (senderUser && senderUser.credits >= 100) {
           senderUser.credits -= 100;
           await senderUser.save();
-
-          const newChat = new chatModel({
-            senderId: senderId,
-            receiverId: receiverId,
-            message: data.message,
-          });
-
-          const savedChat = await newChat.save();
-
-          const receiverSocketId = await redis.get(data.receiverSocketId);
-
-          if (receiverSocketId) {
-            io.to(receiverSocketId).emit('chat_message', savedChat);
-          }
         } else {
           socket.emit('chat_error', { message: 'Insufficient credits' });
+          return;
+        }
+
+        const newChat = new chatModel({
+          senderId: senderId,
+          receiverId: receiverId,
+          message: data.message,
+        });
+
+        const savedChat = await newChat.save();
+
+        const receiverSocketId = await redis.get(data.receiverSocketId);
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('chat_message', savedChat);
         }
       } catch (error) {
         console.error(error);
@@ -56,6 +60,7 @@ module.exports = {
   initializeSocketServer,
   getSocketIO: () => io,
 };
+
 
 module.exports.getChattedUsers = async (req, res) => {
   const userId = req.query.userId;
