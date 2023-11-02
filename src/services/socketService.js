@@ -39,20 +39,16 @@ function initializeSocketServer(io) {
           userId:data.userId,
         });
 
-        await newChat.save();
+         await newChat.save()
 
-        socket.emit('sendResponse', data);
 
-        // const receiverSocketId = await redis.get(data.receiverSocketId);
-        // console.log('receiverSocketId:', receiverSocketId);
-
-        // if (receiverSocketId) {
-        //   io.to(receiverSocketId).emit('new_message', {
-        //     user_id: senderId,
-        //     chat_id: savedChat.id, 
-        //     message: data.message,
-        //   });
-        // }
+        if (connectedUsers[receiverId]) {
+          io.to(connectedUsers[receiverId]).emit('new_message', {
+            user_id: senderId,
+            chat_id: 1, 
+            message: data.message,
+          });
+        }
       } catch (error) {
         console.error(error);
 
@@ -66,10 +62,6 @@ function initializeSocketServer(io) {
   });
 }
 module.exports = initializeSocketServer;
-// module.exports = {
-//   initializeSocketServer,
-//   getSocketIO: () => io,
-// };
 
 
 
