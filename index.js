@@ -17,9 +17,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 
-
-//app.set('io', io);
-
 app.use(cors());
 
 
@@ -28,12 +25,9 @@ const server = http.createServer(app);
 
 const io = require('socket.io')(server, { cors: { origin: '*' } });
 app.set('socketio', io);
+initializeSocketServer(io);
 
-initializeSocketServer.initializeSocketServer(io);
-
-
-
-
+//initializeSocketServer.initializeSocketServer(io);
 
 //connect database......
 require('./src/db/dbConnection').connectdb();
