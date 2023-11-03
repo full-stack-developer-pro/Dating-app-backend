@@ -1,4 +1,6 @@
 const adminCtr = require('../controllers/adminController')
+
+
 const multer = require('multer');
 
 
@@ -66,6 +68,12 @@ module.exports=(app,validator)=>{
      app.post('/api/admin/lastBanner',upload.array('images',5),adminCtr.addLastBanner)
      app.get("/api/admin/geLastBanner",adminCtr.getLastBanner)
 
+    //credits.....................................
+    app.post('/api/admin/addcredit',adminCtr.addCredit)
+    app.get("/api/admin/getCredit",adminCtr.getCreditById)
+    app.delete("/api/admin/deleteCredit/:_id",adminCtr.deleteCredit)
+    app.put("/api/admin/updateCredit/:_id",validator.body(adminValidator.credits),adminCtr.updateCredit)
+  
 
 
 
