@@ -9,6 +9,7 @@ const user =require('../models/userModel')
 const topBanner =require('../models/topBanner')
 const middleBanner = require('../models/middleBanner')
 const secondLastBanner = require('../models/SecondLastBanner')
+const credit = require('../models/creditModel')
 const lastBanner =require('../models/lastBanner')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
@@ -1013,3 +1014,111 @@ module.exports.getLastBanner = async (req, res) => {
         res.status(500).json(response);
     }
 }
+
+
+// creditAdd..........................................................................................
+
+module.exports.addCredit =async(req,res)=>{
+    try {
+        const {credits, currency,price, bonus}=req.body
+        const addCredits = new credit({
+            credits:credits,
+            currency:currency,
+            price:price,
+            bonus:bonus
+        })
+        await addCredits.save()
+        response.success = true;
+        response.message = 'Credits added successfully';
+        response.data = addCredits;
+
+    } catch (error) {
+        console.error(error);
+        response.message = 'Internal Server Error';
+        res.status(500).json(response);
+    }
+}
+
+module.exports.getCreditById = async (req, res) => {
+    try {
+      const foundCredit = await credit.find();
+  
+      if (foundCredit) {
+        response.success = true;
+        response.message = 'Credit Get Successfully';
+        response.data = foundCredit;
+        res.status(200).json(response);
+      } else {
+        response.success = false;
+        response.message = 'Credit not found';
+        response.data = null;
+        res.status(404).json(response);
+      }
+    } catch (error) {
+      console.error(error);
+      response.success = false;
+      response.message = 'Internal Server Error';
+      response.data = null;
+      res.status(500).json(response);
+    }
+  };
+
+
+module.exports.deleteCredit = async (req, res) => {
+    try {
+      const {_id}= req.params
+      const deletedCredit = await credit.findByIdAndDelete({_id:_id});
+  
+      if (deletedCredit) {
+        response.success = true;
+        response.message = 'Credits deleted successfully';
+        response.data = deletedCredit;
+        res.status(200).json(response);
+      } else {
+        response.success = false;
+        response.message = 'Credit not found';
+        response.data = null;
+        res.status(404).json(response);
+      }
+    } catch (error) {
+      console.error(error);
+      response.success = false;
+      response.message = 'Internal Server Error';
+      response.data = null;
+      res.status(500).json(response);
+    }
+  };
+  
+
+
+  module.exports.updateCredit = async (req, res) => {
+    try {
+      const {_id} = req.params
+      const { credits, currency, price, bonus } = req.body;
+      const updatedCredit = await credit.findByIdAndUpdate(_id, {
+        credits,
+        currency,
+        price,
+        bonus
+      });
+  
+      if (updatedCredit) {
+        response.success = true;
+        response.message = 'Credits updated successfully';
+        response.data = updatedCredit;
+        res.status(200).json(response);
+      } else {
+        response.success = false;
+        response.message = 'Credit not found';
+        response.data = null;
+        res.status(404).json(response);
+      }
+    } catch (error) {
+      console.error(error);
+      response.success = false;
+      response.message = 'Internal Server Error';
+      response.data = null;
+      res.status(500).json(response);
+    }
+  };
+  
