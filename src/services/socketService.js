@@ -8,7 +8,6 @@ let io;
 function initializeSocketServer(io) {
   io.on('connection', (socket) => {
     console.log('A user connected');
-    let isFirstMessage = true; 
 
     socket.on('user_added', (userId) => {
       connectedUsers[userId] = socket.id;
@@ -22,36 +21,31 @@ function initializeSocketServer(io) {
 
         const senderUser = await userModel.findById(senderId);
 
-        if (isFirstMessage) {
-          isFirstMessage = false;
-        } else if (senderUser && senderUser.credits >= 100) {
+        if (senderUser && senderUser.credits >= 100) {
           senderUser.credits -= 100;
           await senderUser.save();
+
+          const newChat = new chatModel({
+            senderId: senderId,
+            receiverId: receiverId,
+            message: data.message,
+            userId: data.userId,
+          });
+
+          await newChat.save();
+
+          if (connectedUsers[receiverId]) {
+            io.to(connectedUsers[receiverId]).emit('new_message', {
+              user_id: senderId,
+              chat_id: 1, 
+              message: data.message,
+            });
+          }
         } else {
           socket.emit('chat_error', { message: 'Insufficient credits' });
-          return;
-        }
-
-        const newChat = new chatModel({
-          senderId: senderId,
-          receiverId: receiverId,
-          message: data.message,
-          userId:data.userId,
-        });
-
-         await newChat.save()
-
-
-        if (connectedUsers[receiverId]) {
-          io.to(connectedUsers[receiverId]).emit('new_message', {
-            user_id: senderId,
-            chat_id: 1, 
-            message: data.message,
-          });
         }
       } catch (error) {
         console.error(error);
-
         socket.emit('chat_error', { message: 'Failed to send message' });
       }
     });
@@ -61,7 +55,9 @@ function initializeSocketServer(io) {
     });
   });
 }
+
 module.exports = initializeSocketServer;
+
 
 
 
