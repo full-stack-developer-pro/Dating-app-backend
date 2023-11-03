@@ -42,7 +42,7 @@ function initializeSocketServer(io) {
             });
           }
         } else {
-          socket.emit('chat_error', { message: 'Insufficient credits' });
+          socket.emit('chat_error', { message: 'You can not send messages, your credits are Insufficient' });
         }
       } catch (error) {
         console.error(error);

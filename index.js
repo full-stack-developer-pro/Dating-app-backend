@@ -27,8 +27,6 @@ const io = require('socket.io')(server, { cors: { origin: '*' } });
 app.set('socketio', io);
 initializeSocketServer(io);
 
-//initializeSocketServer.initializeSocketServer(io);
-
 //connect database......
 require('./src/db/dbConnection').connectdb();
 
