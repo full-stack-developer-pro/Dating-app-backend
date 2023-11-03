@@ -76,3 +76,10 @@ module.exports.terms = Joi.object({
   description: Joi.string().required(),
  
 })
+
+module.exports.credits = Joi.object({
+  credits: Joi.number().required(),
+  currency: Joi.string().required(),
+  price: Joi.number().required(),
+  bonus: Joi.string().required(),
+});
