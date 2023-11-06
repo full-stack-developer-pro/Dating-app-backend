@@ -1041,7 +1041,8 @@ module.exports.addCredit =async(req,res)=>{
 
 module.exports.getCreditById = async (req, res) => {
     try {
-      const foundCredit = await credit.find();
+        const { _id } = req.params
+      const foundCredit = await credit.findById({ _id : _id});
   
       if (foundCredit) {
         response.success = true;
