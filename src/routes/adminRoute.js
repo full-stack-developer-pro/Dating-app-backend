@@ -73,7 +73,7 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getCredit",adminCtr.getCreditById)
     app.delete("/api/admin/deleteCredit/:_id",adminCtr.deleteCredit)
     app.put("/api/admin/updateCredit/:_id",validator.body(adminValidator.credits),adminCtr.updateCredit)
-  
+    app.get("/api/admin/getAllCredit",adminCtr.getAllCredits)
 
 
 

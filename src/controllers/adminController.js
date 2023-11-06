@@ -1063,6 +1063,30 @@ module.exports.getCreditById = async (req, res) => {
     }
   };
 
+  module.exports.getAllCredits = async (req, res) => {
+    try {
+      const foundCredits = await credit.find();
+  
+      if (foundCredits && foundCredits.length > 0) {
+        response.success = true;
+        response.message = "Credits retrieved successfully";
+        response.data = foundCredits;
+        res.status(200).json(response);
+      } else {
+        response.success = false;
+        response.message = "No credits found";
+        response.data = [];
+        res.status(404).json(response);
+      }
+    } catch (error) {
+      console.error(error);
+      response.success = false;
+      response.message = "Internal Server Error";
+      response.data = null;
+      res.status(500).json(response);
+    }
+  };
+
 
 module.exports.deleteCredit = async (req, res) => {
     try {
