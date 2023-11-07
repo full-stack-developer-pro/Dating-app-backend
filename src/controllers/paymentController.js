@@ -1,6 +1,7 @@
 // const { STRIPE_SECRET_KEY } = process.env;
 // const stripe = require('stripe')(STRIPE_SECRET_KEY);
- const crypto=require('crypto')
+const crypto=require('crypto')
+
 const ccbilling = {
   url : 'https://secure.billing.creditcard',
   shopID : '130332',
@@ -71,14 +72,16 @@ const generateLink = async (req, res) => {
   try {
 
     const { amount, userId} = req.body;
- 
+
+    var seconds = Math.round(Date.now() / 1000);
+
     if(userId && amount && amount > 0){
 
       var allparams = {
         description : 'Credits Payment',
         priceAmount : amount,
         priceCurrency : 'USD',
-        referenceID : userId,
+        referenceID : `${seconds}-${userId}`,
         shopID: ccbilling.shopID,
         type: 'purchase',
         version: '3.4'
@@ -149,32 +152,39 @@ const verifyPayment = async (req, res) => {
       .then(async (ress) => {
 
         const doc = await yaml.load(ress.data);
-        if(doc && doc.response && doc.response == 'FOUND' && doc.referenceID && doc.referenceID == userId && doc.saleResult && doc.saleResult == 'APPROVED'){
+        if(doc && doc.response && doc.response == 'FOUND' && doc.saleResult && doc.saleResult == 'APPROVED'){
+          
+          var ref1 = (doc.referenceID ? String(doc.referenceID).split('-') : []);
+          if(ref1 && ref1.length > 1 && ref1[1] == userId){
+  
+            //check for sale id already exits or not..
+            const existingPayment = await paymentModel.findOne({
+              saleID: doc.saleID, 
+              shopID: doc.shopID,
+            });
 
-          //check for sale id already exits or not..
-          const existingPayment = await paymentModel.findOne({
-            saleID: doc.saleID, 
-            shopID: doc.shopID,
-          });
+            if(existingPayment){
+              return res.status(500).json({ success: false, message: 'Payment already linked to another account!', data: null });
+            }
 
-          if(existingPayment){
-            return res.status(500).json({ success: false, message: 'Payment already linked to another account!', data: null });
+            //make new entry..
+            const addUPayment = await paymentModel.create({
+              saleID: doc.saleID,
+              userId: userId,
+              shopID: doc.shopID,
+              referenceID: doc.referenceID,
+              paymentMethod: doc.paymentMethod,
+              priceAmount: doc.priceAmount,
+              priceCurrency: doc.priceCurrency,
+              description: doc.description,
+              saleResult: doc.saleResult
+            });
+
+            res.status(200).send({ success: true, message: 'Payment verified!', data: addUPayment });
+          
+          }else{
+            res.status(500).send({ success: false, message: 'Payment not verified!', data: null });
           }
-
-          //make new entry..
-          const addUPayment = await paymentModel.create({
-            saleID: doc.saleID,
-            userId: userId,
-            shopID: doc.shopID,
-            referenceID: doc.referenceID,
-            paymentMethod: doc.paymentMethod,
-            priceAmount: doc.priceAmount,
-            priceCurrency: doc.priceCurrency,
-            description: doc.description,
-            saleResult: doc.saleResult
-          });
-
-          res.status(200).send({ success: true, message: 'Payment verified!', data: addUPayment });
 
         }else{
           res.status(500).send({ success: false, message: 'Payment not verified!', data: null });
@@ -194,7 +204,7 @@ const verifyPayment = async (req, res) => {
 
 
 
-const makeHash = (string) => {
+const makeHash = async (string) => {
   // Create a hash object for SHA-256
   const hash = crypto.createHash('sha256');
 
@@ -208,8 +218,8 @@ const makeHash = (string) => {
 }
 
 // Example usage:
-const inputString = 'Hello, World!';
-const hash = makeHash(inputString);
+// const inputString = 'Hello, World!';
+// const hash = makeHash(inputString);
 
 
 module.exports = {

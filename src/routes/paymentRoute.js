@@ -9,5 +9,5 @@ module.exports = (app,validator) =>{
 
     //For credit card billing gateway..
     app.post('/api/payment/generate-link', checkUserAuth, paymentController.generateLink);
-    app.post('/api/payment/verify-payment', paymentController.verifyPayment);
+    app.post('/api/payment/verify-payment', checkUserAuth, paymentController.verifyPayment);
 }
