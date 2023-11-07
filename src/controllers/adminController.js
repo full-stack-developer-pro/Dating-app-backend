@@ -11,6 +11,7 @@ const middleBanner = require('../models/middleBanner')
 const secondLastBanner = require('../models/SecondLastBanner')
 const credit = require('../models/creditModel')
 const lastBanner =require('../models/lastBanner')
+const Profile=require('../models/uploadProfileImages')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -1041,7 +1042,8 @@ module.exports.addCredit =async(req,res)=>{
 
 module.exports.getCreditById = async (req, res) => {
     try {
-      const foundCredit = await credit.find();
+        const { _id } = req.params
+      const foundCredit = await credit.findById({ _id : _id});
   
       if (foundCredit) {
         response.success = true;
@@ -1058,6 +1060,30 @@ module.exports.getCreditById = async (req, res) => {
       console.error(error);
       response.success = false;
       response.message = 'Internal Server Error';
+      response.data = null;
+      res.status(500).json(response);
+    }
+  };
+
+  module.exports.getAllCredits = async (req, res) => {
+    try {
+      const foundCredits = await credit.find();
+  
+      if (foundCredits && foundCredits.length > 0) {
+        response.success = true;
+        response.message = "Credits retrieved successfully";
+        response.data = foundCredits;
+        res.status(200).json(response);
+      } else {
+        response.success = false;
+        response.message = "No credits found";
+        response.data = [];
+        res.status(404).json(response);
+      }
+    } catch (error) {
+      console.error(error);
+      response.success = false;
+      response.message = "Internal Server Error";
       response.data = null;
       res.status(500).json(response);
     }
@@ -1121,4 +1147,28 @@ module.exports.deleteCredit = async (req, res) => {
       res.status(500).json(response);
     }
   };
+  
+// admin approved for profileUploadImages.........................................
+
+// Approve a profile
+module.exports.approveProfile = async (req, res) => {
+    try {
+      const { profileId } = req.params;
+      await Profile.findByIdAndUpdate(profileId, { is_verified: true });
+      res.status(200).json({ message: 'Profile approved.' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to approve profile.' });
+    }
+  }
+  
+  // Reject a profile
+  module.exports.rejectProfile = async (req, res) => {
+    try {
+      const { profileId } = req.params;
+      await Profile.findByIdAndUpdate(profileId, { is_verified: false });
+      res.status(200).json({ message: 'Profile rejected.' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to reject profile.' });
+    }
+  }
   

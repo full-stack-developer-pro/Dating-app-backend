@@ -70,12 +70,15 @@ module.exports=(app,validator)=>{
 
     //credits.....................................
     app.post('/api/admin/addcredit',adminCtr.addCredit)
-    app.get("/api/admin/getCredit",adminCtr.getCreditById)
+    app.get("/api/admin/getCredit/:_id",adminCtr.getCreditById)
     app.delete("/api/admin/deleteCredit/:_id",adminCtr.deleteCredit)
     app.put("/api/admin/updateCredit/:_id",validator.body(adminValidator.credits),adminCtr.updateCredit)
-  
+    app.get("/api/admin/getAllCredit",adminCtr.getAllCredits)
 
 
-
+    // profileUploadImages
+    
+    app.post('/api/admin/approve-profile/:profileId',adminCtr.approveProfile)
+    app.post('/api/admin/reject-profile/:profileId',adminCtr.rejectProfile)
   }
   
