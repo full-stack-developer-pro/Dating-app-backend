@@ -76,6 +76,9 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getAllCredit",adminCtr.getAllCredits)
 
 
-
+    // profileUploadImages
+    
+    app.post('/api/admin/approve-profile/:profileId',adminCtr.approveProfile)
+    app.post('/api/admin/reject-profile/:profileId',adminCtr.rejectProfile)
   }
   
