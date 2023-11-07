@@ -192,15 +192,25 @@ const verifyPayment = async (req, res) => {
 };
 
 
-const makeHash = async (string) => {
-  const utf8 = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, '0'))
-    .join('');
+
+
+const makeHash = (string) => {
+  // Create a hash object for SHA-256
+  const hash = crypto.createHash('sha256');
+
+  // Update the hash with the input string
+  hash.update(string, 'utf8');
+
+  // Generate the hexadecimal hash
+  const hashHex = hash.digest('hex');
+
   return hashHex;
 }
+
+// Example usage:
+const inputString = 'Hello, World!';
+const hash = makeHash(inputString);
+
 
 module.exports = {
   // createCustomer,
