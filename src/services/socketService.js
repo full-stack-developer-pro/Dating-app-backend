@@ -77,12 +77,13 @@ function initializeSocketServer(io) {
         const senderUser = await userModel.findById(senderId);
         const receiverUser = await userModel.findById(receiverId);
 
-        if (messageType === "flirt") {
+        if (messageType === "wink" || messageType === "text") {
           if (senderUser && senderUser.gender === "female" && receiverUser.gender === "male") {
+           
             const newChat = new chatModel({
               senderId: senderId,
               receiverId: receiverId,
-              flirtMessage: data.flirtMessage,
+              messageType: messageType,
               userId: data.userId,
             });
 
@@ -92,7 +93,7 @@ function initializeSocketServer(io) {
               io.to(connectedUsers[receiverId]).emit('new_message', {
                 user_id: senderId,
                 chat_id: 1,
-                flirtMessage: data.flirtMessage,
+                messageType: messageType,
               });
             }
           } else {
@@ -103,7 +104,7 @@ function initializeSocketServer(io) {
               const newChat = new chatModel({
                 senderId: senderId,
                 receiverId: receiverId,
-                flirtMessage: data.flirtMessage,
+                messageType: messageType,
                 userId: data.userId,
               });
 
@@ -113,32 +114,15 @@ function initializeSocketServer(io) {
                 io.to(connectedUsers[receiverId]).emit('new_message', {
                   user_id: senderId,
                   chat_id: 1,
-                  flirtMessage: data.flirtMessage,
+                  messageType: messageType,
                 });
-              } else {
               }
             } else {
-              socket.emit('chat_error', { message: 'You cannot send a flirt message, your credits are insufficient' });
+              socket.emit('chat_error', { message: 'You cannot send a wink or text, your credits are insufficient' });
             }
           }
         } else {
-          const newChat = new chatModel({
-            senderId: senderId,
-            receiverId: receiverId,
-            message: data.message,
-            userId: data.userId,
-          });
-
-          await newChat.save();
-
-          if (connectedUsers[receiverId]) {
-            io.to(connectedUsers[receiverId]).emit('new_message', {
-              user_id: senderId,
-              chat_id: 1,
-              message: data.message,
-            });
-          } else {
-          }
+          socket.emit('chat_error', { message: 'Unsupported message type' });
         }
       } catch (error) {
         console.error(error);
@@ -153,6 +137,7 @@ function initializeSocketServer(io) {
 }
 
 module.exports = initializeSocketServer;
+
 
 
 
