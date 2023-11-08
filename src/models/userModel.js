@@ -103,6 +103,14 @@ const userSchema = new mongoose.Schema({
     photo: {
         type : Object,
     }, 
+    gallery: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Gallery',
+    },
+    images: [{
+        path: String,
+        url: String,
+    }],
 }, 
 {
     timestamps: true,

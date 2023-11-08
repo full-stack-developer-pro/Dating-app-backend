@@ -1,62 +1,86 @@
-const profile = require('../models/gallery')
-const response = require("../db/dbRes");
+const profile = require('../models/gallery');
+const userModel = require('../models/userModel');
 
-module.exports.addProfileImages = async (req, res) => {
+
+// module.exports.addImages = async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+//         const imagesIds = req.files;
+
+//         const user = await userModel.findById(userId);
+
+//         if (!user) {
+//             return res.status(404).json({ error: 'User not found' });
+//         }
+
+//         const images = [];
+
+//         for (const image of imagesIds) {
+//             const newImage = {
+//                 path: image.path,
+//                 url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+//             };
+
+//             images.push(newImage);
+//         }
+
+//         const newGallery = new profile({
+//             is_verified: false,
+//             images: images, 
+//         });
+
+//         await newGallery.save();
+
+//         user.gallery = newGallery;
+//         await user.save();
+
+//         res.status(201).json({
+//             message: 'Gallery images uploaded and associated with the user profile.',
+//             data: newGallery, 
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Failed to upload gallery images.' });
+//     }
+// };
+
+
+module.exports.addImages = async (req, res) => {
     try {
+        const { userId } = req.params;
+        const imagesIds = req.files;
 
-        const images = req.files;
-        const imagePaths = images.map((image) => ({
-            path: image.path,
-            url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
-        }));
+        const user = await userModel.findById(userId);
 
-        const newProfile = new profile({
-            is_verified: false,
-            images: imagePaths,
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const images = [];
+
+        for (const image of imagesIds) {
+            const newImage = {
+                path: image.path,
+                url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(image.filename)}`,
+            };
+
+            images.push(newImage);
+        }
+
+        // Push the new images into the user's profile
+        user.images = user.images.concat(images);
+
+        await user.save();
+
+        res.status(201).json({
+            message: 'Gallery images uploaded and associated with the user profile.',
+            data: user, // Return the updated user profile
         });
-
-        await newProfile.save();
-
-        res.status(201).json({ message: 'Gallery image uploaded and pending approval.', data: newProfile });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to upload profile image.' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to upload gallery images.' });
     }
-}
-
-module.exports.getGalleryImages = async (req, res) => {
-    try {
-        const { _id } = req.params
-        const user = await profile.findById({_id:_id})
-        if (!user) {
-            response.success = false;
-            response.message = "User Not Found";
-            response.data = null;
-            res.status(404).json(response);
-
-        }
-        res.status(201).json({ message: 'Gallery Get Successfully.', data: user });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-    }
-}
+};
 
 
-module.exports.getAllGalleryImages = async (req, res) => {
-    try {
-        const user = await profile.find()
-        if (!user) {
-            response.success = false;
-            response.message = "User Not Found";
-            response.data = null;
-            res.status(404).json(response);
 
-        }
-        res.status(201).json({ message: 'All Gallery Get Successfully.', data: user });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-    }
-}
