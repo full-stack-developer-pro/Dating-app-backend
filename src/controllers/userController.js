@@ -6,11 +6,13 @@ const bcryptService = require("../services/bcryptService");
 const jwtServices = require("../services/jwtService");
 const campareService = require("../services/camprePassword");
 const { v4: uuidv4 } = require("uuid");
-const nodeMailer = require("nodemailer"); 
+const nodeMailer = require("nodemailer");
 const mongoose = require("mongoose");
-const messageModel =require('../models/chatModel')
+const messageModel = require('../models/chatModel')
 const online = require('online');
 const transporter = require('../services/emailVerifyService');
+
+
 
 module.exports.addUser = async (req, res) => {
   try {
@@ -44,20 +46,32 @@ module.exports.addUser = async (req, res) => {
       status,
     } = req.body;
 
+
+    const photo = req.file;
+
+    const imagePath = {
+      path: photo.path,
+      url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(photo.filename)}`,
+    };
+
     const userId = uuidv4();
     const userIP = req.ip;
     const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     const existingUser = await userModel.findOne({ email });
+
     if (existingUser) {
-      response.success = false;
-      response.message = "User Already Exists";
-      response.data = null;
-      return res.status(409).send(response);
+      const response = {
+        success: false,
+        message: 'User Already Exists',
+        data: null,
+      };
+      return res.status(409).json(response);
     }
 
     const hashedPassword = await bcryptService.hashPassword(password);
-    const addUser = await userModel.create({
+
+    const newUser = await userModel.create({
       id: userId,
       is_fake,
       username,
@@ -82,48 +96,37 @@ module.exports.addUser = async (req, res) => {
       credits,
       ip_address: userIP,
       free_message,
-      is_verified: false, 
+      is_verified: false,
       is_flagged,
       role,
       friends,
       status,
-      verificationCode, 
+      verificationCode,
+      photo: imagePath,
     });
-    // const transporter = nodeMailer.createTransport({
-    //   host: process.env.SMTP_HOST,
-    //   port: process.env.SMTP_PORT,
-    //   service: process.env.SMTP_SERVICE,
-    //   secure: true,
-    //   auth: {
-    //     user: process.env.SMTP_MAIL,
-    //     pass: process.env.SMTP_PASSWORD,
-    //   },
-    // });
-    // const mailOptions = {
-    //   from: process.env.SMTP_MAIL,
-    //   to: options.email,
-    //   subject: options.subject,
-    //   text: options.message,
-    // };
-  
-    // await transporter.sendMail(mailOptions);
 
-    addUser.last_login = new Date();
-    addUser.online = true;
-    await addUser.save();
+    newUser.last_login = new Date();
+    newUser.online = true;
+    await newUser.save();
 
-    response.success = true;
-    response.message = "User Signup Successfully. Check your email for the verification code.";
-    response.data = addUser;
-    return res.status(201).send(response);
+    const response = {
+      success: true,
+      message: 'User Signup Successfully. Check your email for the verification code.',
+      data: newUser,
+    };
+
+    return res.status(201).json(response);
   } catch (error) {
     console.error(error);
-    response.success = false;
-    response.message = "Internal Server Error";
-    response.data = null;
-    return res.status(500).send(response);
+    const response = {
+      success: false,
+      message: 'Internal Server Error',
+      data: null,
+    };
+    return res.status(500).json(response);
   }
 };
+
 
 module.exports.verifyEmail = async (req, res) => {
   try {
@@ -261,7 +264,7 @@ module.exports.updateUser = async (req, res) => {
       res.status(404).json(response);
     }
   } catch (error) {
-    console.error(error); 
+    console.error(error);
     response.success = false;
     response.message = "Internal Server Error";
     response.data = null;
@@ -274,7 +277,7 @@ module.exports.userDelete = async (req, res) => {
 
   try {
     const { _id } = req.params;
-    
+
     const user = await userModel.findByIdAndDelete(_id);
 
     if (user) {
@@ -289,13 +292,14 @@ module.exports.userDelete = async (req, res) => {
       res.status(404).json(response);
     }
   } catch (error) {
-    console.error(error); 
+    console.error(error);
     response.success = false;
     response.message = "Internal Server Error";
     response.data = null;
     res.status(500).json(response);
   }
 };
+
 
 module.exports.memberStatic = async (req, res) => {
   try {
@@ -331,6 +335,30 @@ module.exports.memberStatic = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+// getalluser.....
+module.exports.getAllUser = async (req, res) => {
+  try {
+      const { } = req.body;
+      const userId = await userModel.find();
+      if (userId) {
+          response.success = true,
+              response.message = ' User Get Successfuly'
+          response.data = userId
+          res.status(200).json(response)
+      } else {
+          response.success = false,
+              response.message = ' User Not Found'
+          response.data = null
+          res.status(404).json(response)
+      }
+  } catch (error) {
+      response.success = false,
+          response.message = "Internal Server Error",
+          response.data = null,
+          res.status(500).json(response)
   }
 }
 
@@ -383,16 +411,24 @@ module.exports.getDetailsById = async (req, res) => {
               },
             },
             {
-              $unwind: "$friends"
+              $unwind: "$friends",
             },
             {
               $project: {
                 _id: 0,
-                friends: "$friends._id" 
-              }
-            }
+                friends: "$friends._id",
+              },
+            },
           ],
           as: "friends",
+        },
+      },
+      {
+        $lookup: {
+          from: "profiles",
+          localField: "_id",
+          foreignField: "images",
+          as: "profile",
         },
       },
       {
@@ -405,7 +441,7 @@ module.exports.getDetailsById = async (req, res) => {
           email: 1,
           password: 1,
           gender: 1,
-          age:1,
+          age: 1,
           birthdate: 1,
           description: 1,
           country: 1,
@@ -424,7 +460,8 @@ module.exports.getDetailsById = async (req, res) => {
           free_message: 1,
           is_verified: 1,
           is_flagged: 1,
-          friends: 1, 
+          friends: 1,
+          photo: 1,
         },
       },
     ]);
@@ -440,7 +477,7 @@ module.exports.getDetailsById = async (req, res) => {
 
     const response = {
       success: true,
-      message: "User Get Successfully",
+      message: "User Retrieved Successfully",
       data: user[0],
     };
     res.status(200).json(response);
@@ -454,6 +491,9 @@ module.exports.getDetailsById = async (req, res) => {
     res.status(500).json(response);
   }
 };
+
+
+
 
 
 module.exports.getAllFriends = async (req, res) => {
@@ -526,6 +566,14 @@ module.exports.getAllFriends = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "galleries",
+          localField: "_id",
+          foreignField: "photo",
+          as: "gallery",
+        },
+      },
+      {
         $project: {
           _id: 0,
           id: 1,
@@ -554,6 +602,8 @@ module.exports.getAllFriends = async (req, res) => {
           is_verified: 1,
           is_flagged: 1,
           friends: 1,
+          profile: 1,
+          photo:1
         },
       },
     ]);
@@ -584,47 +634,4 @@ module.exports.getAllFriends = async (req, res) => {
   }
 };
 
-
-
-//Create  save a chat message
-module.exports.saveChat =  async (req, res) => {
-    try {
-      const { senderId, receiverId, message } = req.body;
-
-      const newChatMessage = await chatModel({
-        senderId,
-        receiverId,
-        message,
-      });
-      
-      const savedChatMessage = await newChatMessage.save();
-    
-      res.status(201).json(savedChatMessage);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'An error occurred while saving the chat message' });
-    }
-  };
-
-
-
-
-//api for get chat messages
-
-module.exports.getChatMessages =  async (req, res) => {
-  try {
-    const { senderId, receiverId } = req.query;
-    const chatMessages = await chatModel.find({
-      $or: [
-        { senderId, receiverId },
-        { senderId: receiverId, receiverId: senderId },
-      ],
-    }).sort({ createdAt: 1 });
-
-    res.status(200).json(chatMessages);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while fetching chat messages' });
-  }
-};
 

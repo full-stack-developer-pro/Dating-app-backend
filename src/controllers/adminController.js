@@ -1,4 +1,5 @@
 const adminModel = require('../models/adminModel');
+const userModel = require('../models/userModel')
 const aboutModel = require('../models/aboutModel')
 const contactModel = require('../models/contactModel')
 const socialModel = require('../models/socialLinkModel')
@@ -11,7 +12,7 @@ const middleBanner = require('../models/middleBanner')
 const secondLastBanner = require('../models/SecondLastBanner')
 const credit = require('../models/creditModel')
 const lastBanner =require('../models/lastBanner')
-const Profile=require('../models/uploadProfileImages')
+const Profile=require('../models/gallery')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -54,7 +55,7 @@ module.exports.loginAdmin = async (req, res) => {
 };
 
 // update..
-module.exports.userUpdate = async (req, res) => {
+module.exports.adminUpdate = async (req, res) => {
     try {
         const { name, email, _id } = req.body
         const updateData = await adminModel.findByIdAndUpdate(_id, {
@@ -68,7 +69,7 @@ module.exports.userUpdate = async (req, res) => {
                 res.status(200).send(response)
         } else {
             response.success = false,
-                response.message = ' User Does Not Updated'
+                response.message = ' admin Does Not Updated'
             response.data = null
             res.status(400).send(response)
         }
@@ -80,57 +81,6 @@ module.exports.userUpdate = async (req, res) => {
         res.status(500).send(response)
     }
 }
-
-
-// delete.....
-
-module.exports.adminDelete = async (req, res) => {
-    try {
-        const { _id } = req.body
-        const user = await adminModel.findByIdAndDelete({ _id: _id })
-        if (user) {
-            response.success = true,
-                response.message = ' Admin  Delete Successfully'
-            response.data = null
-            res.status(200).json(response)
-        } else {
-            response.success = false,
-                response.message = ' Admin Does Not Delete'
-            response.data = null
-            res.status(404).json(response)
-        }
-    } catch (error) {
-        response.success = false,
-            response.message = "Internal Server Error",
-            response.data = null,
-            res.status(500).json(response)
-    }
-}
-
-// getalluser.....
-module.exports.getAllUser = async (req, res) => {
-    try {
-        const { } = req.body;
-        const userId = await adminModel.find();
-        if (userId) {
-            response.success = true,
-                response.message = ' User Get Successfuly'
-            response.data = userId
-            res.status(200).json(response)
-        } else {
-            response.success = false,
-                response.message = ' User Not Found'
-            response.data = null
-            res.status(404).json(response)
-        }
-    } catch (error) {
-        response.success = false,
-            response.message = "Internal Server Error",
-            response.data = null,
-            res.status(500).json(response)
-    }
-}
-
 
 // changePassword...
 module.exports.changePassword = async (req, res) => {

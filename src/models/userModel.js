@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Profile = require('./gallery');
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -99,6 +100,9 @@ const userSchema = new mongoose.Schema({
     verificationCode:{
         type:String
     },
+    photo: {
+        type : Object,
+    }, 
 }, 
 {
     timestamps: true,
