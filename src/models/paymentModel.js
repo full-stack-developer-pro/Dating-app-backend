@@ -12,7 +12,8 @@ const paymentsSchema = new mongoose.Schema({
         type: String
     },
     referenceID: {
-        type: String
+        type: String,
+        unique: true
     },
     paymentMethod: {
         type: String

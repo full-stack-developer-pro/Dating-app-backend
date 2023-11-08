@@ -36,7 +36,8 @@ require('./src/routes/adminRoute')(app,validator)
 require('./src/routes/friendRoute')(app)
 require('./src/routes/listRoute')(app,validator)
 require('./src/routes/paymentRoute')(app,validator)
-require('./src/routes/profileUploadImagesRoute')(app)
+require('./src/routes/gelleryRoute')(app,validator)
+
 
 
 app.use((err, req, res, next) => {

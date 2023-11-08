@@ -29,6 +29,8 @@ module.exports.userValidationSchema = Joi.object({
     role: Joi.number(),
     status: Joi.string().valid('active', 'inactive').default('active'),
     friends: Joi.object(),
+    
+   
 
 });
 
