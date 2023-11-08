@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 
-const profileSchema = new mongoose.Schema({
- 
-  is_verified: { type: Boolean, default: false },
-  images: {
-    type: Array,
-},
+const gallerySchema = new mongoose.Schema({
+    is_verified: {
+        type: Boolean,
+        default: false
+    },
+    images: [{
+        path: String,
+        url: String,
+    }]
 });
 
-module.exports = mongoose.model('gellery', profileSchema);
+module.exports = mongoose.model('Gallery', gallerySchema);
+
+

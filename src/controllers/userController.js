@@ -425,10 +425,10 @@ module.exports.getDetailsById = async (req, res) => {
       },
       {
         $lookup: {
-          from: "profiles",
+          from: "galleries",
           localField: "_id",
           foreignField: "images",
-          as: "profile",
+          as: "Gallery",
         },
       },
       {
@@ -462,6 +462,7 @@ module.exports.getDetailsById = async (req, res) => {
           is_flagged: 1,
           friends: 1,
           photo: 1,
+          images:1,
         },
       },
     ]);
