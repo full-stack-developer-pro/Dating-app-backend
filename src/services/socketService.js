@@ -5,6 +5,60 @@ const mongoose = require('mongoose');
 const userModel = require("../models/userModel");
 let io; 
 
+// function initializeSocketServer(io) {
+//   io.on('connection', (socket) => {
+//     console.log('A user connected');
+
+//     socket.on('user_added', (userId) => {
+//       connectedUsers[userId] = socket.id;
+//       console.log(`User added with ID: ${userId}`);
+//     });
+
+//     socket.on('chat_message', async (data) => {
+//       try {
+//         const senderId = data.senderId;
+//         const receiverId = data.receiverId;
+
+//         const senderUser = await userModel.findById(senderId);
+
+//         if (senderUser && senderUser.credits >= 100) {
+//           senderUser.credits -= 100;
+//           await senderUser.save();
+
+//           const newChat = new chatModel({
+//             senderId: senderId,
+//             receiverId: receiverId,
+//             message: data.message,
+//             userId: data.userId,
+//           });
+
+//           await newChat.save();
+
+//           if (connectedUsers[receiverId]) {
+//             io.to(connectedUsers[receiverId]).emit('new_message', {
+//               user_id: senderId,
+//               chat_id: 1, 
+//               message: data.message,
+//             });
+//           }
+//         } else {
+//           socket.emit('chat_error', { message: 'You can not send messages, your credits are Insufficient' });
+//         }
+//       } catch (error) {
+//         console.error(error);
+//         socket.emit('chat_error', { message: 'Failed to send message' });
+//       }
+//     });
+
+//     socket.on('disconnect', () => {
+//       console.log('A user disconnected');
+//     });
+//   });
+// }
+
+// module.exports = initializeSocketServer;
+
+
 function initializeSocketServer(io) {
   io.on('connection', (socket) => {
     console.log('A user connected');
@@ -18,13 +72,56 @@ function initializeSocketServer(io) {
       try {
         const senderId = data.senderId;
         const receiverId = data.receiverId;
+        const messageType = data.messageType;
 
         const senderUser = await userModel.findById(senderId);
+        const receiverUser = await userModel.findById(receiverId);
 
-        if (senderUser && senderUser.credits >= 100) {
-          senderUser.credits -= 100;
-          await senderUser.save();
+        if (messageType === "flirt") {
+          if (senderUser && senderUser.gender === "female" && receiverUser.gender === "male") {
+            const newChat = new chatModel({
+              senderId: senderId,
+              receiverId: receiverId,
+              flirtMessage: data.flirtMessage,
+              userId: data.userId,
+            });
 
+            await newChat.save();
+
+            if (connectedUsers[receiverId]) {
+              io.to(connectedUsers[receiverId]).emit('new_message', {
+                user_id: senderId,
+                chat_id: 1,
+                flirtMessage: data.flirtMessage,
+              });
+            }
+          } else {
+            if (senderUser && senderUser.credits >= 100) {
+              senderUser.credits -= 100;
+              await senderUser.save();
+
+              const newChat = new chatModel({
+                senderId: senderId,
+                receiverId: receiverId,
+                flirtMessage: data.flirtMessage,
+                userId: data.userId,
+              });
+
+              await newChat.save();
+
+              if (connectedUsers[receiverId]) {
+                io.to(connectedUsers[receiverId]).emit('new_message', {
+                  user_id: senderId,
+                  chat_id: 1,
+                  flirtMessage: data.flirtMessage,
+                });
+              } else {
+              }
+            } else {
+              socket.emit('chat_error', { message: 'You cannot send a flirt message, your credits are insufficient' });
+            }
+          }
+        } else {
           const newChat = new chatModel({
             senderId: senderId,
             receiverId: receiverId,
@@ -37,12 +134,11 @@ function initializeSocketServer(io) {
           if (connectedUsers[receiverId]) {
             io.to(connectedUsers[receiverId]).emit('new_message', {
               user_id: senderId,
-              chat_id: 1, 
+              chat_id: 1,
               message: data.message,
             });
+          } else {
           }
-        } else {
-          socket.emit('chat_error', { message: 'You can not send messages, your credits are Insufficient' });
         }
       } catch (error) {
         console.error(error);
