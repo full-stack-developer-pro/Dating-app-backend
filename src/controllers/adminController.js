@@ -1110,7 +1110,6 @@ module.exports.approveProfile = async (req, res) => {
       res.status(500).json({ error: 'Failed to approve profile.' });
     }
   }
-  
   // Reject a profile
   module.exports.rejectProfile = async (req, res) => {
     try {
