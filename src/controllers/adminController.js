@@ -12,7 +12,6 @@ const middleBanner = require('../models/middleBanner')
 const secondLastBanner = require('../models/SecondLastBanner')
 const credit = require('../models/creditModel')
 const lastBanner =require('../models/lastBanner')
-const Profile=require('../models/gallery')
 const response = require('../db/dbRes');
 const bcryptService = require('../services/bcryptService');
 const jwtServices = require('../services/jwtService');
@@ -1101,23 +1100,111 @@ module.exports.deleteCredit = async (req, res) => {
 // admin approved for profileUploadImages.........................................
 
 // Approve a profile
+
 module.exports.approveProfile = async (req, res) => {
-    try {
-      const { profileId } = req.params;
-      await Profile.findByIdAndUpdate(profileId, { is_verified: true });
-      res.status(200).json({ message: 'Profile approved.' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to approve profile.' });
+  try {
+    const { _id } = req.params;
+   
+
+    const user = await userModel.findById(_id);
+ 
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+  
+    user.is_verified = true;
+
+    await user.save();
+
+    res.status(200).json({
+      message: 'User approved successfully.',
+      data: user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to approve the user.' });
   }
+};
+  
   // Reject a profile
   module.exports.rejectProfile = async (req, res) => {
     try {
-      const { profileId } = req.params;
-      await Profile.findByIdAndUpdate(profileId, { is_verified: false });
+      const { _id } = req.params;
+      await userModel.findByIdAndUpdate(_id, { is_verified: false });
       res.status(200).json({ message: 'Profile rejected.' });
     } catch (error) {
       res.status(500).json({ error: 'Failed to reject profile.' });
     }
   }
+  
+
+  
+
+  // Route to approve an image
+  module.exports.approveImage = async (req, res) => {
+    try {
+      const { _id, imageId } = req.params;
+  
+      const user = await userModel.findById(_id);
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Find the image by its ID within the user's images array
+      const image = user.images.find((img) => img._id == imageId);
+  
+      if (!image) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+  
+      // Set is_approved to true to approve the image
+      image.verifyStatus = true;
+  
+      await user.save();
+  
+      res.status(200).json({
+        message: 'Image approved successfully.',
+        data: user.images,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to approve the image.' });
+    }
+  };
+  
+  // Route to reject an image
+  module.exports.rejectImage = async (req, res) => {
+    try {
+      const { _id, imageId } = req.params;
+  
+      const user = await userModel.findById(_id);
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Find the image by its ID within the user's images array
+      const image = user.images.find((img) => img._id == imageId);
+  
+      if (!image) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+  
+      // Set is_approved to false to reject the image
+      image.verifyStatus = false;
+  
+      await user.save();
+  
+      res.status(200).json({
+        message: 'Image rejected successfully.',
+        data: user.images,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to reject the image.' });
+    }
+  };
   

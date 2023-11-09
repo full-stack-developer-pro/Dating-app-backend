@@ -74,9 +74,15 @@ module.exports=(app,validator)=>{
     app.get("/api/admin/getAllCredit",adminCtr.getAllCredits)
 
 
-    // profileUploadImages
+    // profile approve
     
-    app.post('/api/admin/approve-profile/:profileId',adminCtr.approveProfile)
-    app.post('/api/admin/reject-profile/:profileId',adminCtr.rejectProfile)
+    app.post('/api/admin/approve-profile/:_id',adminCtr.approveProfile)
+    app.post('/api/admin/reject-profile/:_id',adminCtr.rejectProfile)
+
+    // images approve
+    app.post('/api/admin/approve-images/:_id/:imageId',adminCtr.approveImage)
+    app.post('/api/admin/reject-images/:_id/:imageId',adminCtr.rejectImage)
+
+
   }
   
