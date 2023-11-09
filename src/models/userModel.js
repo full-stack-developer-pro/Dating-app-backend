@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
-const Profile = require('./gallery');
+
+
+const imageSchema = new mongoose.Schema({
+    path: String,
+    url: String,
+    verifyStatus: {
+        type: Boolean,
+        default: false
+    },
+});
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -107,10 +116,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Gallery',
     },
-    images: [{
-        path: String,
-        url: String,
-    }],
+    images: [imageSchema],
 }, 
 {
     timestamps: true,

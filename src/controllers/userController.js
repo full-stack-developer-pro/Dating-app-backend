@@ -463,6 +463,7 @@ module.exports.getDetailsById = async (req, res) => {
           friends: 1,
           photo: 1,
           images:1,
+          verifyStatus:1,
         },
       },
     ]);
