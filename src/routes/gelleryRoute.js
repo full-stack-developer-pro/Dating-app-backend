@@ -13,5 +13,5 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 module.exports = (app, validator) => {
-    app.post('/api/uploadGalleryImages/:userId', upload.array('images', 50), userCtr.addImages);
+    app.post('/api/uploadGalleryImages/:userId', upload.array('images', 9), userCtr.addImages);
 };

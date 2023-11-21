@@ -9,22 +9,10 @@ const auth =require("../services/roleService")
 
 const socketService = require('../services/socketService')
 
-// for images Upload......................................
-const multer = require('multer');
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads');
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    },
-  });
-  
-  const upload = multer({ storage: storage });
   
 
 module.exports=(app,validator)=>{
-    app.post("/api/user/signup",upload.single('photo'), userCtr.addUser);//validator.body(userModel.userValidationSchema),
+    app.post("/api/user/signup", userCtr.addUser);//validator.body(userModel.userValidationSchema),
     app.post("/api/user/verifyEmail", userCtr.verifyEmail);
     app.post("/api/user/Login", validator.body(userModel.loginUsers), userCtr.loginUser);
     app.put("/api/user/update/:id", userCtr.updateUser);
