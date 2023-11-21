@@ -1,5 +1,6 @@
 //controllerFiles
 const userCtr = require('../controllers/userController')
+const geonamesController = require('../controllers/geonamesController');
 
 //validateModelFiles
 const userModel = require('../validateModels/userModel')
@@ -28,5 +29,5 @@ module.exports=(app,validator)=>{
     app.get("/api/user/getChat" , socketService.getChats );
     app.get("/api/user/chatted" , socketService.getChattedUsers );
 
-   
+    app.get("/api/getCountryCities/:countryCode", geonamesController.getCountryCities);
    }
