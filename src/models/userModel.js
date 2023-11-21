@@ -108,9 +108,6 @@ const userSchema = new mongoose.Schema({
     },
     verificationCode:{
         type:String
-    },
-    photo: {
-        type : Object,
     }, 
     gallery: {
         type: mongoose.Schema.Types.ObjectId,

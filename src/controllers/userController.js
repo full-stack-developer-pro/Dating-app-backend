@@ -47,13 +47,6 @@ module.exports.addUser = async (req, res) => {
     } = req.body;
 
 
-    const photo = req.file;
-
-    const imagePath = {
-      path: photo.path,
-      url: `https://dating-app-backend-xyrj.onrender.com/uploads/${encodeURIComponent(photo.filename)}`,
-    };
-
     const userId = uuidv4();
     const userIP = req.ip;
     const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -102,7 +95,7 @@ module.exports.addUser = async (req, res) => {
       friends,
       status,
       verificationCode,
-      photo: imagePath,
+      
     });
 
     newUser.last_login = new Date();
