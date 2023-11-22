@@ -24,7 +24,7 @@ module.exports=(app,validator)=>{
     app.get("/api/user/getAllUser",userCtr.getAllUser)
 
   
-    // chat route
+    // chat route 
   
     app.get("/api/user/getChat" , socketService.getChats );
     app.get("/api/user/chatted" , socketService.getChattedUsers );
