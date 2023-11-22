@@ -3,7 +3,7 @@ const response = require('../db/dbRes');
 
 module.exports.addList = async (req, res) => {
     try {
-        let { gender, country } = req.query;
+        let { gender, country, minValue, maxValue } = req.query;
         const filter = {};
         gender = gender ? gender.toLowerCase() : '';
 
@@ -24,17 +24,26 @@ module.exports.addList = async (req, res) => {
             filter.country = country; 
         }
 
+        if (minValue && !isNaN(minValue)) {
+            filter.age = { $gte: parseInt(minValue) };
+        }
+
+        if (maxValue && !isNaN(maxValue)) {
+            filter.age = { ...filter.age, $lte: parseInt(maxValue) };
+        }
+
         const people = await userModel.find(filter);
 
         if (!people || people.length === 0) {
-            if (!filter.gender && !filter.country) {
+            if (!filter.gender && !filter.country && !filter.age) {
                 response.success = false;
                 response.message = "Both Female and Male Not Found";
             } else {
                 const genderMessage = filter.gender ? `${filter.gender === 'female' ? 'Female' : 'Male'} Not Found` : '';
                 const countryMessage = filter.country ? `Country '${filter.country}' Not Found` : '';
+                const ageMessage = filter.age ? `Users with specified age range Not Found` : '';
                 response.success = false;
-                response.message = `${genderMessage}${genderMessage && countryMessage ? ' and ' : ''}${countryMessage}`;
+                response.message = `${genderMessage}${genderMessage && countryMessage ? ' and ' : ''}${countryMessage}${(genderMessage || countryMessage) && ageMessage ? ' and ' : ''}${ageMessage}`;
             }
             response.data = null;
             res.status(404).json(response);
